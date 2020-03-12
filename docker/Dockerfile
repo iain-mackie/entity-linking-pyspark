@@ -50,4 +50,4 @@ ENV PATH=$PATH:$SPARK_HOME/bin
 RUN git config --global user.email "i.mackie@me.com"
 RUN git config --global user.name "iain-mackie"
 WORKDIR /home/
-RUN git clone https://github.com/iain-mackie/trec-car-entity-processing
+CMD git clone https://github.com/iain-mackie/trec-car-entity-processing

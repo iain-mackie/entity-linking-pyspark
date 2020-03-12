@@ -1,1 +1,80 @@
-jupyter/pyspark-notebook
+################################################
+
+apiVersion: apps.openshift.io/v1
+kind: DeploymentConfig
+metadata:
+  name: pythonmlnotebookgpu2-imackie
+  namespace: imackieproject
+spec:
+  replicas: 1
+  strategy:
+    resources: {}
+  template:
+    metadata:
+      labels:
+        app: pythonMLNotebook
+        deploymentconfig: pythonMLNotebookGPU
+    spec:
+      containers:
+      - name: deepo-ml-plus-imackie
+        image: iainmackie/trec-car-entity-processing:v1
+        resources:
+          requests:
+            cpu: "8000m"
+            memory: "64Gi"
+          limits:
+            cpu: "16000m"
+            memory: "128Gi"
+        command:
+          - 'jupyter-lab'
+        args:
+          - '--no-browser'
+          - '--ip=0.0.0.0'
+          - '--allow-root'
+          - '--NotebookApp.token='
+          - '--notebook-dir="/nfs/"'
+        ports:
+          - containerPort: 8888
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+          - mountPath: /nfs/
+            name: nfs-access
+      securityContext: {}
+      serviceAccount: containerroot
+      volumes:
+      - name: nfs-access
+        persistentVolumeClaim:
+          claimName: imackievol1claim
+
+
+################################################
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: jupyterservice
+  namespace: imackieproject
+spec:
+  selector:
+    app: pythonMLNotebook
+  ports:
+  - name: jupyter
+    port: 8888
+    protocol: TCP
+    targetPort: 8888
+
+
+################################################
+
+apiVersion:route.openshift.io/v1
+kind: Route
+metadata:
+  name: jupyterroute
+  namespace: imackieproject
+spec:
+  path: /
+  to:
+    kind: Service
+    name: jupyterservice
+  port:
+    targetPort: 8888
