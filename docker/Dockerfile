@@ -1,0 +1,53 @@
+
+FROM ubuntu:latest
+
+MAINTAINER Iain Mackie
+
+USER root
+
+# Install essentials
+RUN apt-get update && apt-get install -y \
+    software-properties-common  \
+    wget \
+    make \
+    gcc  \
+    git
+
+# Install java 11
+RUN wget https://download.java.net/java/GA/jdk11/9/GPL/openjdk-11.0.2_linux-x64_bin.tar.gz \
+    && tar -xzvf *.tar.gz
+ENV JAVA_VERSION="jdk-11.0.2"
+RUN mv $JAVA_VERSION /usr/local/share/ \
+    && rm *.tar.gz
+ENV JAVA_HOME=/usr/local/share/$JAVA_VERSION
+ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Install scala
+RUN apt-get install scala -y
+
+# Install python
+RUN apt-get install -y python3 \
+    python3-pip \
+    python-setuptools
+RUN pip3 install jupyter jupyterlab
+RUN pip3 install py4j
+
+# Install Spark
+ENV APACHE_SPARK_VERSION=2.4.5 \
+    HADOOP_VERSION=2.7
+RUN cd /tmp && \
+    wget -q $(wget -qO- https://www.apache.org/dyn/closer.lua/spark/spark-${APACHE_SPARK_VERSION}/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz\?as_json | \
+    python3 -c "import sys, json; content=json.load(sys.stdin); print(content['preferred']+content['path_info'])") && \
+    echo "2426a20c548bdfc07df288cd1d18d1da6b3189d0b78dee76fa034c52a4e02895f0ad460720c526f163ba63a17efae4764c46a1cd8f9b04c60f9937a554db85d2 *spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz" | sha512sum -c - && \
+    tar xzf spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz -C /usr/local/share/ --owner root --group root --no-same-owner && \
+    rm spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
+ENV SPARK_HOME=/usr/local/share/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}
+ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
+ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" 
+ENV PATH=$PATH:$SPARK_HOME/bin
+
+# Install github code for TREC CAR entity processing
+RUN git config --global user.email "i.mackie@me.com"
+RUN git config --global user.name "iain-mackie"
+WORKDIR /home/
+RUN git clone https://github.com/iain-mackie/trec-car-entity-processing
