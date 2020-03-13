@@ -160,19 +160,24 @@ def print_child_sections(doc):
         print_page_skeleton(cs)
 
 
+def print_head_and_child(head, children):
+    print('  HEADING  ')
+    print_section(s=head)
+    if len(children) > 0:
+        print('  CHILD HEADINGS  ')
+        for h, c in children:
+            print_head_and_child(head=h, children=c)
+    else:
+        print('  NO CHILDREN  ')
+
+
 def print_nested_headings(doc):
 
+    print('page.nested_headings()\n')
     for head, children in doc.nested_headings():
-        print(head, children)
+        print_head_and_child(head, children)
         print('==============================================================')
-        print('  HEADING  ')
-        print_section(s=head)
-        if len(children) > 0:
-            print('  CHILD HEADINGS  ')
-            for child in children:
-                print_section(s=child)
-        else:
-            print('  NO CHILDREN  ')
+
 
 def print_doc(doc):
     print('==============================================================')
@@ -187,7 +192,9 @@ def print_doc(doc):
     #
     # print_child_sections(doc)
 
-    print_nested_headings(doc)
+    # print_nested_headings(doc)
+
+    #
 
 
 if __name__ == '__main__':
