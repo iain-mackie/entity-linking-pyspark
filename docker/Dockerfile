@@ -49,5 +49,3 @@ ENV PATH=$PATH:$SPARK_HOME/bin
 # Install github code for TREC CAR entity processing
 RUN git config --global user.email "i.mackie@me.com"
 RUN git config --global user.name "iain-mackie"
-WORKDIR /home/
-CMD git clone https://github.com/iain-mackie/trec-car-entity-processing

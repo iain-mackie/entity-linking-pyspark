@@ -1,3 +1,9 @@
+ 142 lines (130 sloc) 3.17 KB
+Commands to run to make files read/write
+
+- end of scripts groupwrite permissons (run chmod -R 775 *)
+- copy scp (chmod -R 775 * && chmod -R +w * && chgrp -R nfsnobody *)
+
 ################################################
 
 apiVersion: apps.openshift.io/v1
