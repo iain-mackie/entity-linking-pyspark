@@ -29,8 +29,14 @@ RUN apt-get install scala -y
 RUN apt-get install -y python3 \
     python3-pip \
     python-setuptools
-RUN pip3 install jupyter jupyterlab
-RUN pip3 install py4j
+RUN pip3 install \
+    jupyter \
+    jupyterlab \
+    py4j \
+    cbor \
+    transformers \
+    spacy \
+    torch
 
 # Install Spark
 ENV APACHE_SPARK_VERSION=2.4.5 \
@@ -43,8 +49,9 @@ RUN cd /tmp && \
     rm spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 ENV SPARK_HOME=/usr/local/share/spark-${APACHE_SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}
 ENV PYTHONPATH=$SPARK_HOME/python:$SPARK_HOME/python/lib/py4j-0.10.7-src.zip
-ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info" 
+ENV SPARK_OPTS="--driver-java-options=-Xms1024M --driver-java-options=-Xmx4096M --driver-java-options=-Dlog4j.logLevel=info"
 ENV PATH=$PATH:$SPARK_HOME/bin
+ENV PYSPARK_PYTHON=python3
 
 # Install github code for TREC CAR entity processing
 RUN git config --global user.email "i.mackie@me.com"
