@@ -178,29 +178,39 @@ def print_nested_headings(doc):
         print_head_and_child(head, children)
         print('==============================================================')
 
+def print_flat_headings(doc):
+
+    print('page.flat_headings()\n')
+    for headings in doc.flat_headings_list():
+        for h in headings:
+            print_page_skeleton(ps=h)
+            print('==============================================================')
+
 
 def print_doc(doc):
     print('==============================================================')
     print('========================= NEW DOC ============================')
     print('==============================================================')
 
-    # print_doc_info(doc)
-    #
-    # print_metadata(doc)
-    #
-    # print_skeleton(doc)
-    #
-    # print_child_sections(doc)
+    print_doc_info(doc)
 
-    # print_nested_headings(doc)
+    print_metadata(doc)
 
-    #
+    print_skeleton(doc)
+
+    print_child_sections(doc)
+
+    print_nested_headings(doc)
+
+    print_flat_headings(doc)
+
 
 
 if __name__ == '__main__':
 
     #path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    path = '/home/imackie/Documents/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    path = '/Users/iain/LocalStorage/trec_page_data/unprocessedAllButBenchmark.Y2.cbor'
+    #path = '/home/imackie/Documents/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     id = 4
 
     doc = get_doc(id=id, path=path)
