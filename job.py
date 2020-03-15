@@ -53,8 +53,9 @@ def parse_inputs(page, i, spark, page_schema=page_schema):
 
 def write_json_from_DataFrame(df, path):
 
-    for j in df.toJSON().collect():
-        json.dump(j, path, indent=4)
+    with open(path, 'w') as f:
+        for j in df.toJSON().collect():
+            json.dump(j, f, indent=4)
 
 def run_job(read_path, write_path, num_pages=1, print_pages=100):
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
@@ -69,7 +70,7 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 
             if (i % print_pages == 0) and (i != 0):
                 print('----- row {} -----'.format(i))
-                print(df.filter(df["idx"] == i).show())
+                print(page.page_id)
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
 
