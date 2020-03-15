@@ -19,14 +19,18 @@ page_schema = StructType([
 
 def parse_inputs(page, spark, page_schema=page_schema):
     page_meta = {}
-    page_meta['disambiguationNames'] = p.page_meta.disambiguationNames
-    page_meta['disambiguationIds'] = p.page_meta.disambiguationIds
-    page_meta['categoryNames'] = p.page_meta.disambiguationIds
-    page_meta['categoryIds'] = p.page_meta.disambiguationIds
-    page_meta['inlinkIds'] = p.page_meta.disambiguationIds
-    page_meta['inlinkAnchors'] = p.page_meta.disambiguationIds
+    page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
+    page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
+    page_meta['categoryNames'] = page.page_meta.disambiguationIds
+    page_meta['categoryIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
     return spark.createDataFrame([
-                (page.page_id, page.page_name, str(page.page_type), page_meta, p.get_text())
+                (page.page_id,
+                 page.page_name,
+                 str(page.page_type),
+                 page_meta,
+                 page.get_text())
             ], schema=page_schema)
 
 
