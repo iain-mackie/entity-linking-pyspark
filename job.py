@@ -51,3 +51,5 @@ def run_job(path, num_pages=1):
 
 if __name__ == '__main__':
     path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    num_pages = 100
+    run_job(path=path, num_pages=num_pages)
