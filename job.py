@@ -33,18 +33,18 @@ def convert_to_unicode(text):
 
 def parse_inputs(page, spark, page_schema=page_schema):
     page_meta = {}
-    page_meta['disambiguationNames'] = convert_to_unicode(page.page_meta.disambiguationNames)
-    page_meta['disambiguationIds'] = convert_to_unicode(page.page_meta.disambiguationIds)
-    page_meta['categoryNames'] = convert_to_unicode(page.page_meta.disambiguationIds)
-    page_meta['categoryIds'] = convert_to_unicode(page.page_meta.disambiguationIds)
-    page_meta['inlinkIds'] = convert_to_unicode(page.page_meta.disambiguationIds)
-    page_meta['inlinkAnchors'] = convert_to_unicode(page.page_meta.disambiguationIds)
+    page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
+    page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
+    page_meta['categoryNames'] = page.page_meta.disambiguationIds
+    page_meta['categoryIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
     return spark.createDataFrame([
-                (convert_to_unicode(page.page_id),
-                 convert_to_unicode(page.page_name),
-                 convert_to_unicode(str(page.page_type)),
-                 convert_to_unicode(page_meta),
-                 convert_to_unicode(page.get_text()))
+                (page.page_id,
+                 page.page_name,
+                 str(page.page_type),
+                 page_meta,
+                 page.get_text())
             ], schema=page_schema)
 
 
