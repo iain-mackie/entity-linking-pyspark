@@ -11,6 +11,7 @@ import six
 
 
 page_schema = StructType([
+    StructField("idx", IntegerType(), True),
     StructField("page_id", StringType(), True),
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
@@ -32,7 +33,7 @@ def convert_to_unicode(text):
         raise ValueError("Not running on Python 3?")
 
 
-def parse_inputs(page, spark, page_schema=page_schema):
+def parse_inputs(page, i, spark, page_schema=page_schema):
     page_meta = {}
     page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
     page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
@@ -41,7 +42,8 @@ def parse_inputs(page, spark, page_schema=page_schema):
     page_meta['inlinkIds'] = page.page_meta.disambiguationIds
     page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
     return spark.createDataFrame([
-                (page.page_id,
+                (i,
+                 page.page_id,
                  page.page_name,
                  str(page.page_type),
                  page_meta,
@@ -61,15 +63,15 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
         for i, page in enumerate(iter_pages(f)):
 
             if i == 0:
-                TrecCarDataFrame = parse_inputs(page=page, spark=spark)
+                df = parse_inputs(page=page, i=i, spark=spark)
             else:
-                TrecCarDataFrame = TrecCarDataFrame.union(parse_inputs(page=page, spark=spark))
+                df = df.union(parse_inputs(page=page, i=i, spark=spark))
 
             if (i % print_pages == 0) and (i != 0):
                 print('----- row {} -----'.format(i))
-                print(TrecCarDataFrame.select('page_id').show())
+                print(df.filter(df["idx"] == i).show())
                 time_delta = time.time() - t_start
-                print('time elapse: {} <> time / page: {}'.format(time_delta, time_delta/i))
+                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
 
             if i >= num_pages:
                 break
@@ -78,7 +80,7 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
     print('PROCESSED DATA: {}'.format(time_delta))
 
     print('WRITING TO JSON')
-    write_json_from_DataFrame(df=TrecCarDataFrame, path=write_path)
+    write_json_from_DataFrame(df=df, path=write_path)
     time_delta = time.time() - t_start
     print('JOB COMPLETE: {}'.format(time_delta))
 
@@ -87,5 +89,5 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 if __name__ == '__main__':
     read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     write_path = '/nfs/trec_car/trec_car/entity_processing/data/test.json'
-    num_pages = 10000
+    num_pages = 250
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
