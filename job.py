@@ -46,19 +46,12 @@ def run_job(path, num_pages=1, print_pages=100):
                 print('----- row {} -----'.format(i))
                 print(TrecCarDataFrame.show())
                 time_delta = time.time() - t_start
-                print('time elapse: {} <> time / page: {}'.format(time_delta, time_delta/counter))
-
+                print('time elapse: {} <> time / page: {}'.format(time_delta, time_delta/i))
 
             if i >= num_pages:
                 break
-
-
-
-    t_end = time.time()
-    time_delta = t_start - t_end
-    print(time_delta)
-    print(TrecCarDataFrame.show())
-    print(TrecCarDataFrame.schema)
+    time_delta = time.time() - t_start
+    print('JOB COMPLETED: {}'.format(time_delta))
 
 
 if __name__ == '__main__':
