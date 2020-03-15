@@ -63,10 +63,8 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
     with open(read_path, 'rb') as f:
         for i, page in enumerate(iter_pages(f)):
 
-            if i == 0:
-                df = parse_inputs(page=page, i=i, spark=spark)
-            else:
-                df = df.union(parse_inputs(page=page, i=i, spark=spark))
+            df = parse_inputs(page=page, i=i, spark=spark)
+            write_json_from_DataFrame(df=df, path=write_path)
 
             if (i % print_pages == 0) and (i != 0):
                 print('----- row {} -----'.format(i))
@@ -79,12 +77,6 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/i))
-
-    print('WRITING TO JSON')
-    write_json_from_DataFrame(df=df, path=write_path)
-    time_delta = time.time() - t_start
-    print('JOB COMPLETE: {} --> total time / page: {}'.format(time_delta, time_delta/i))
-
 
 
 if __name__ == '__main__':
