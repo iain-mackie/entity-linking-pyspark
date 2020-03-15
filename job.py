@@ -53,7 +53,7 @@ def parse_inputs(page, i, spark, page_schema=page_schema):
 
 def write_json_from_DataFrame(df, path):
 
-    with open(path, 'a+') as f:
+    with open(path, 'w') as f:
         for j in df.toJSON().collect():
             json.dump(j, f, indent=4)
 
