@@ -53,7 +53,7 @@ def parse_inputs(page, i, spark, page_schema=page_schema):
 
 def write_json_from_DataFrame(df, path):
 
-    with open(path, 'w') as f:
+    with open(path, 'a+') as f:
         for j in df.toJSON().collect():
             json.dump(j, f, indent=4)
 
@@ -88,7 +88,7 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 
 
 if __name__ == '__main__':
-    read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    write_path = '/nfs/trec_car/entity_processing/data/test.json'
+    read_path =  '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    write_path = '/nfs/trec_car/data/test_entity/test.json'
     num_pages = 250
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
