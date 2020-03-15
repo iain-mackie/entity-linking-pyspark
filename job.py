@@ -6,6 +6,7 @@ from data_exploration.data_exploration import get_doc
 from trec_car_tools import iter_pages
 
 import time
+import six
 
 
 page_schema = StructType([
