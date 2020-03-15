@@ -6,6 +6,7 @@ from data_exploration.data_exploration import get_doc
 from trec_car_tools import iter_pages
 
 import time
+import json
 import six
 
 
@@ -48,13 +49,21 @@ def parse_inputs(page, spark, page_schema=page_schema):
             ], schema=page_schema)
 
 
-def run_job(path, num_pages=1, print_pages=100):
+def write_json_from_DataFrame(df, path):
+
+    for j in df.toJSON().collect():
+        json.dump(j, path, indent=4)
+
+def run_job(read_path, write_path, num_pages=1, print_pages=100):
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     t_start = time.time()
-    with open(path, 'rb') as f:
+    with open(read_path, 'rb') as f:
         for i, page in enumerate(iter_pages(f)):
 
-            TrecCarDataFrame = parse_inputs(page=page, spark=spark)
+            if i == 0:
+                TrecCarDataFrame = parse_inputs(page=page, spark=spark)
+            else:
+                TrecCarDataFrame = TrecCarDataFrame.union(parse_inputs(page=page, spark=spark))
 
             if (i % print_pages == 0) and (i != 0):
                 print('----- row {} -----'.format(i))
@@ -64,11 +73,19 @@ def run_job(path, num_pages=1, print_pages=100):
 
             if i >= num_pages:
                 break
+
     time_delta = time.time() - t_start
-    print('JOB COMPLETED: {}'.format(time_delta))
+    print('PROCESSED DATA: {}'.format(time_delta))
+
+    print('WRITING TO JSON')
+    write_json_from_DataFrame(df=TrecCarDataFrame, path=write_path)
+    time_delta = time.time() - t_start
+    print('JOB COMPLETE: {}'.format(time_delta))
+
 
 
 if __name__ == '__main__':
-    path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    write_path = '/nfs/trec_car/trec_car/entity_processing/data/test.json'
     num_pages = 10000
-    run_job(path=path, num_pages=num_pages)
+    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
