@@ -34,23 +34,31 @@ def parse_inputs(page, spark, page_schema=page_schema):
             ], schema=page_schema)
 
 
-def run_job(path, num_pages=1):
+def run_job(path, num_pages=1, print_pages=100):
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
-    counter = 0
-    t0 = time.time()
+    t_start = time.time()
     with open(path, 'rb') as f:
-        for page in iter_pages(f):
-            TrecCarDataFrame = parse_inputs(page=page, spark=spark)
-            if counter >= num_pages:
-                break
-            counter += 1
+        for i, page in enumerate(iter_pages(f)):
 
-    t1 = time.time()
-    time_delta = t1 - t0
+            TrecCarDataFrame = parse_inputs(page=page, spark=spark)
+
+            if (i % print_pages == 0) and (i != 0):
+                print('----- row {} -----'.format(i))
+                print(TrecCarDataFrame.show())
+                time_delta = time.time() - t_start
+                print('time elapse: {} <> time / page: {}'.format(time_delta, time_delta/counter))
+
+
+            if i >= num_pages:
+                break
+
+
+
+    t_end = time.time()
+    time_delta = t_start - t_end
     print(time_delta)
     print(TrecCarDataFrame.show())
-    for i in TrecCarDataFrame.schema:
-        print(i)
+    print(TrecCarDataFrame.schema)
 
 
 if __name__ == '__main__':
