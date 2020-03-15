@@ -89,6 +89,6 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 
 if __name__ == '__main__':
     read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    write_path = '/nfs/trec_car/trec_car/entity_processing/data/test.json'
+    write_path = '/nfs/trec_car/entity_processing/data/test.json'
     num_pages = 250
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
