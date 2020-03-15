@@ -44,7 +44,7 @@ def run_job(path, num_pages=1, print_pages=100):
 
             if (i % print_pages == 0) and (i != 0):
                 print('----- row {} -----'.format(i))
-                print(TrecCarDataFrame.show())
+                # print(TrecCarDataFrame.show())
                 time_delta = time.time() - t_start
                 print('time elapse: {} <> time / page: {}'.format(time_delta, time_delta/i))
 
