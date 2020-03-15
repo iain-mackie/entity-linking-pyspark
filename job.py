@@ -78,17 +78,17 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
                 break
 
     time_delta = time.time() - t_start
-    print('PROCESSED DATA: {}'.format(time_delta))
+    print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/i))
 
     print('WRITING TO JSON')
     write_json_from_DataFrame(df=df, path=write_path)
     time_delta = time.time() - t_start
-    print('JOB COMPLETE: {}'.format(time_delta))
+    print('JOB COMPLETE: {} --> total time / page: {}'.format(time_delta, time_delta/i))
 
 
 
 if __name__ == '__main__':
     read_path =  '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     write_path = '/nfs/trec_car/data/test_entity/test.json'
-    num_pages = 250
+    num_pages = 100000
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
