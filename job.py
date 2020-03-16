@@ -26,6 +26,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
 
             # build PySpark DataFrame
             df = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
+            print(df)
 
             # writes PySpark DataFrame to json file
             write_json_from_DataFrame(df=df, path=write_path)
