@@ -53,3 +53,7 @@ ENV PYSPARK_PYTHON=python3
 # Install github code for TREC CAR entity processing
 RUN git config --global user.email "i.mackie@me.com"
 RUN git config --global user.name "iain-mackie"
+
+# load required NLP models
+RUN python3 -m spacy download en_core_web_sm
+

@@ -211,7 +211,7 @@ if __name__ == '__main__':
     #path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     path = '/Users/iain/LocalStorage/trec_page_data/unprocessedAllButBenchmark.Y2.cbor'
     #path = '/home/imackie/Documents/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    id = 4
+    id = 1
 
     doc = get_doc(id=id, path=path)
     print_doc(doc=doc)

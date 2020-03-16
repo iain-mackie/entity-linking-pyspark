@@ -5,6 +5,7 @@ from pyspark.sql.types import StructType, StructField, StringType, MapType, Arra
 from data_exploration.data_exploration import get_doc
 from trec_car_tools import iter_pages
 
+import spacy
 import time
 import json
 import six
@@ -16,8 +17,14 @@ page_schema = StructType([
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
     StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
-    StructField("text", StringType(), True),
 ])
+
+
+def write_json_from_DataFrame(df, path):
+    """ Writes a PySpark DataFrame to json file """
+    with open(path, 'a+') as f:
+        for j in df.toJSON().collect():
+            json.dump(j, f, indent=4)
 
 
 def convert_to_unicode(text):
@@ -33,7 +40,18 @@ def convert_to_unicode(text):
         raise ValueError("Not running on Python 3?")
 
 
-def parse_inputs(page, i, spark, page_schema=page_schema):
+def parse_metadata(page_meta):
+    page_meta = {}
+    page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
+    page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
+    page_meta['categoryNames'] = page.page_meta.disambiguationIds
+    page_meta['categoryIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkIds'] = page.page_meta.disambiguationIds
+    page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
+    return page_meta
+
+
+def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
     """ Builds a PySpark DataFrame given a Page and schema """
     page_meta = {}
     page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
@@ -47,26 +65,22 @@ def parse_inputs(page, i, spark, page_schema=page_schema):
                  page.page_id,
                  page.page_name,
                  str(page.page_type),
-                 page_meta,
-                 page.get_text())
+                 parse_metadata(page.page_meta),
+                )
             ], schema=page_schema)
 
-
-def write_json_from_DataFrame(df, path):
-    """ Writes a PySpark DataFrame to json file """
-    with open(path, 'a+') as f:
-        for j in df.toJSON().collect():
-            json.dump(j, f, indent=4)
 
 def run_job(read_path, write_path, num_pages=1, print_pages=100):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
+    spacy_nlp = spacy.load("en_core_web_sm")
     t_start = time.time()
+    num_pages -= 1
     with open(read_path, 'rb') as f:
         for i, page in enumerate(iter_pages(f)):
 
             # build PySpark DataFrame
-            df = parse_inputs(page=page, i=i, spark=spark)
+            df = parse_inputs(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
 
             # writes PySpark DataFrame to json file
             write_json_from_DataFrame(df=df, path=write_path)
@@ -75,6 +89,7 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
                 # prints update at 'print_pages' intervals
                 print('----- row {} -----'.format(i))
                 print(page.page_id)
+                print(page.disambiguationNames)
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
 
