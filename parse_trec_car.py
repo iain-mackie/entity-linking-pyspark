@@ -32,41 +32,19 @@ def convert_to_unicode(text):
         raise ValueError("Not running on Python 3?")
 
 
-def print_bodies(b):
-    for iB, B in enumerate(b):
-        if isinstance(B, ParaLink):
-            print('  ParaLink - paragraph.bodies()[{}].pageid:  {}'.format(iB, B.get_text()))
-            print('  ParaLink - paragraph.bodies()[{}].page:  {}'.format(iB, B.page))
-            print('  ParaLink - paragraph.bodies()[{}].get_text():  {}'.format(iB, B.get_text()))
-            print('  ParaLink - paragraph.bodies()[{}].link_section:  {}'.format(iB, B.link_section))
-        elif isinstance(B, ParaText):
-            print('  ParaText - paragraph.bodies()[{}].get_text(): {}'.format(iB, B.get_text()))
-        elif isinstance(B, ParaBody):
-            print('  ParaBody - paragraph.bodies()[{}].get_text(): {}'.format(iB, B.get_text()))
-        else:
-            print("Paragraph not type")
-            raise
-
 def parse_bodies(b):
-    l = []
+    body_list = []
     for iB, B in enumerate(b):
         if isinstance(B, ParaLink):
-            l.append(['ParaLink', B.pageid, B.page, B.get_text(), B.link_section])
+            body_list.append(['ParaLink', B.pageid, B.page, B.get_text(), B.link_section])
         elif isinstance(B, ParaText):
-            l.append('ParaText', B.get_text())
+            body_list.append(['ParaText', B.get_text()])
         elif isinstance(B, ParaBody):
-            l.append('ParaBody', B.get_text())
+            body_list.append(['ParaBody', B.get_text()])
         else:
             print("Paragraph body not type")
             raise
-    return l
-
-def print_paragraph(p):
-    print('\nPara')
-    print('  paragraph.para_id : {}'.format(p.paragraph.para_id))
-    print('  paragraph.get_text() : {}'.format(p.paragraph.get_text()))
-    print_bodies(b=p.paragraph.bodies)
-
+    return body_list
 
 def parse_paragraph(skeleton_subclass):
     return [skeleton_subclass.paragraph.para_id,
