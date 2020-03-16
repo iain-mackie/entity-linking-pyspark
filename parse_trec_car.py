@@ -97,7 +97,7 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
     parse_skeleton(page.skeleton)
     return spark.createDataFrame([
                 (i,
-                 page.page_id,
+                 convert_to_unicode(page.page_id),
                  # page.page_name,
                  # str(page.page_type),
                  # parse_metadata(page.page_meta),
