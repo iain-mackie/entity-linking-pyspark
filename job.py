@@ -44,19 +44,19 @@ def convert_to_unicode(text):
 def parse_skeleton_subclasses(skeleton_subclass):
     if isinstance(skeleton_subclass, Para):
         print('IS Para')
-        print(skeleton_subclass)
+        # print(skeleton_subclass)
 
     elif isinstance(skeleton_subclass, Image):
         print('IS IMAGE')
-        print(skeleton_subclass)
+        # print(skeleton_subclass)
 
     elif isinstance(skeleton_subclass, Section):
         print('IS Section')
-        print(skeleton_subclass)
+        # print(skeleton_subclass)
 
     elif isinstance(skeleton_subclass, List):
         print('IS List')
-        print(skeleton_subclass)
+        # print(skeleton_subclass)
 
     else:
         print("Page Section not type")
