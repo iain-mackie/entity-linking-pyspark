@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType
 
 from data_exploration.data_exploration import get_doc
-from trec_car_tools import iter_pages
+from trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 
 import spacy
 import time
