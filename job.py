@@ -17,6 +17,7 @@ page_schema = StructType([
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
     StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
+    StructField("skeleton", ArrayType(StringType(), True), True),
 ])
 
 
@@ -40,6 +41,11 @@ def convert_to_unicode(text):
         raise ValueError("Not running on Python 3?")
 
 
+def parse_skeleton(skeleton):
+    print(skeleton)
+    return ['STRING', 'STRING']
+
+
 def parse_metadata(page_meta):
     d = {}
     d['disambiguationNames'] = page_meta.disambiguationNames
@@ -53,6 +59,7 @@ def parse_metadata(page_meta):
 
 def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
     """ Builds a PySpark DataFrame given a Page and schema """
+    parse_skeleton(page.skeleton)
     return spark.createDataFrame([
                 (i,
                  page.page_id,
