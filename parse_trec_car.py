@@ -79,7 +79,6 @@ def parse_skeleton(skeleton):
     skeleton_list = []
     for i, skeleton_subclass in enumerate(skeleton):
         skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass))
-    print(skeleton_list)
     return skeleton_list
 
 
