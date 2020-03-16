@@ -46,16 +46,20 @@ def parse_bodies(b):
             raise
     return body_list
 
-def parse_paragraph(skeleton_subclass):
+def parse_paragraph(skeleton_subclass, spacy_nlp):
+    print('paragraph.get_text()')
+    print(skeleton_subclass.paragraph.get_text())
+    doc = spacy_nlp(text=keleton_subclass.paragraph.get_text())
+    print(list(doc.ents))
     return [skeleton_subclass.paragraph.para_id,
             skeleton_subclass.paragraph.get_text(),
             parse_bodies(b=skeleton_subclass.paragraph.bodies)]
 
 
-def parse_skeleton_subclasses(skeleton_subclass):
+def parse_skeleton_subclasses(skeleton_subclass, spacy_nlp):
     if isinstance(skeleton_subclass, Para):
         print('IS Para')
-        return parse_paragraph(skeleton_subclass)
+        return parse_paragraph(skeleton_subclass, spacy_nlp)
 
     elif isinstance(skeleton_subclass, Image):
         print('IS IMAGE')
@@ -74,11 +78,11 @@ def parse_skeleton_subclasses(skeleton_subclass):
         raise
 
 
-def parse_skeleton(skeleton):
+def parse_skeleton(skeleton, spacy_nlp):
     """ Parse page.skeleton to array """
     skeleton_list = []
     for i, skeleton_subclass in enumerate(skeleton):
-        skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass))
+        skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass, spacy_nlp))
     return skeleton_list
 
 
@@ -94,13 +98,12 @@ def parse_metadata(page_meta):
 
 def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
     """ Builds a PySpark DataFrame given a Page and schema """
-    parse_skeleton(page.skeleton)
     return spark.createDataFrame([
                 (i,
                  page.page_id,
                  page.page_name,
                  str(page.page_type),
                  parse_metadata(page.page_meta),
-                 parse_skeleton(page.skeleton),
+                 parse_skeleton(page.skeleton, spacy_nlp),
                 )
             ], schema=page_schema)
