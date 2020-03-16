@@ -104,5 +104,5 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
 if __name__ == '__main__':
     read_path =  '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     write_path = '/nfs/trec_car/data/test_entity/test.json'
-    num_pages = 100000
+    num_pages = 10
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
