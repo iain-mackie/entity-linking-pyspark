@@ -42,12 +42,12 @@ def convert_to_unicode(text):
 
 def parse_metadata(page_meta):
     page_meta = {}
-    page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
-    page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
-    page_meta['categoryNames'] = page.page_meta.disambiguationIds
-    page_meta['categoryIds'] = page.page_meta.disambiguationIds
-    page_meta['inlinkIds'] = page.page_meta.disambiguationIds
-    page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
+    page_meta['disambiguationNames'] = page_meta.disambiguationNames
+    page_meta['disambiguationIds'] = page_meta.disambiguationIds
+    page_meta['categoryNames'] = page_meta.disambiguationIds
+    page_meta['categoryIds'] = page_meta.disambiguationIds
+    page_meta['inlinkIds'] = page_meta.disambiguationIds
+    page_meta['inlinkAnchors'] = page_meta.disambiguationIds
     return page_meta
 
 
