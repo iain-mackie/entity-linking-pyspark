@@ -49,7 +49,6 @@ def parse_bodies(b):
 def parse_paragraph(skeleton_subclass, spacy_nlp):
     print('paragraph.get_text()')
     print(type(skeleton_subclass.paragraph.get_text()))
-    print(skeleton_subclass.paragraph.get_text())
     raw_text = str(skeleton_subclass.paragraph.get_text().decode("utf-8"))
     print(raw_text)
     doc = spacy_nlp(text=raw_text)
