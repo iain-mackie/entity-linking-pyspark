@@ -15,7 +15,7 @@ page_schema = StructType([
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
     StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
-    StructField("skeleton", ArrayType(StringType(), True), True),
+    StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
 ])
 
 
@@ -47,6 +47,19 @@ def print_bodies(b):
             print("Paragraph not type")
             raise
 
+def parse_bodies(b):
+    l = []
+    for iB, B in enumerate(b):
+        if isinstance(B, ParaLink):
+            l.append(['ParaLink', B.pageid, B.page, B.get_text(), B.link_section])
+        elif isinstance(B, ParaText):
+            l.append('ParaText', B.get_text())
+        elif isinstance(B, ParaBody):
+            l.append('ParaBody', B.get_text())
+        else:
+            print("Paragraph body not type")
+            raise
+    return l
 
 def print_paragraph(p):
     print('\nPara')
@@ -55,74 +68,51 @@ def print_paragraph(p):
     print_bodies(b=p.paragraph.bodies)
 
 
-def print_list(l):
-    print('\nList')
-    print('  level: {}'.format(l.level))
-    print('  get_text(): {}'.format(l.get_text()))
-    print('  body.para_id: {}'.format(l.body.para_id))
-    print('  body.get_text(): {}'.format(l.body.get_text()))
-    print_bodies(b=l.body.bodies)
+def parse_paragraph(skeleton_subclass):
+    return [skeleton_subclass.paragraph.para_id,
+            skeleton_subclass.paragraph.get_text(),
+            parse_bodies(b=skeleton_subclass.paragraph.bodies)]
 
-
-def print_section(s):
-    print('\nSection')
-    print('  heading: {}'.format(s.heading))
-    print('  headingId: {}'.format(s.headingId))
-    print('  nested_headings: {}'.format(s.nested_headings()))
-    child_sections = s.child_sections
-    if len(child_sections) == 0:
-        print('  empty child_sections: {}'.format(s.child_sections))
-    else:
-        for CS in child_sections:
-            print('*** printing child_sections ***')
-            print_section(s=CS)
-
-    children = s.children
-    if len(children) == 0:
-        print('  empty children: {}'.format(children))
-    else:
-        for C in children:
-            print('*** printing children ***')
-            print_page_skeleton(ps=C)
 
 def parse_skeleton_subclasses(skeleton_subclass):
     if isinstance(skeleton_subclass, Para):
         print('IS Para')
-        # print(skeleton_subclass)
+        return parse_paragraph(skeleton_subclass)
 
     elif isinstance(skeleton_subclass, Image):
         print('IS IMAGE')
-        # print(skeleton_subclass)
+        return [['IMAGE']]
 
     elif isinstance(skeleton_subclass, Section):
         print('IS Section')
-        # print(skeleton_subclass)
+        return [['Section']]
 
     elif isinstance(skeleton_subclass, List):
         print('IS List')
-        # print(skeleton_subclass)
+        return [['List']]
 
     else:
         print("Page Section not type")
         raise
 
+
 def parse_skeleton(skeleton):
     """ Parse page.skeleton to array """
+    skeleton_list = []
     for i, skeleton_subclass in enumerate(skeleton):
-        parse_skeleton_subclasses(skeleton_subclass)
-    return ['STRING', 'STRING']
+        skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass))
+    print(skeleton_list)
+    return skeleton_list
 
 
 def parse_metadata(page_meta):
     """ Parse page.page_data to dict """
-    d = {}
-    d['disambiguationNames'] = page_meta.disambiguationNames
-    d['disambiguationIds'] = page_meta.disambiguationIds
-    d['categoryNames'] = page_meta.disambiguationIds
-    d['categoryIds'] = page_meta.disambiguationIds
-    d['inlinkIds'] = page_meta.disambiguationIds
-    d['inlinkAnchors'] = page_meta.disambiguationIds
-    return d
+    return {'disambiguationNames': page_meta.disambiguationNames,
+            'disambiguationIds': page_meta.disambiguationIds,
+            'categoryNames': page_meta.disambiguationIds,
+            'categoryIds': page_meta.disambiguationIds,
+            'inlinkIds': page_meta.disambiguationIds,
+            'inlinkAnchors': page_meta.disambiguationIds}
 
 
 def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
