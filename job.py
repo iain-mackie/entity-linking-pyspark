@@ -82,7 +82,6 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
                 # prints update at 'print_pages' intervals
                 print('----- row {} -----'.format(i))
                 print(page.page_id)
-                print(page.disambiguationNames)
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
 
