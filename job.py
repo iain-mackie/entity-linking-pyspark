@@ -63,7 +63,7 @@ def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
             ], schema=page_schema)
 
 
-def run_job(read_path, write_path, num_pages=1, print_pages=100):
+def run_job(read_path, write_path, num_pages=1, print_intervals=100):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
@@ -78,7 +78,7 @@ def run_job(read_path, write_path, num_pages=1, print_pages=100):
             # writes PySpark DataFrame to json file
             write_json_from_DataFrame(df=df, path=write_path)
 
-            if (i % print_pages == 0) and (i != 0):
+            if (i % print_intervals == 0) and (i != 0):
                 # prints update at 'print_pages' intervals
                 print('----- row {} -----'.format(i))
                 print(page.page_id)
@@ -98,4 +98,5 @@ if __name__ == '__main__':
     read_path =  '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     write_path = '/nfs/trec_car/data/test_entity/test.json'
     num_pages = 10
-    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages)
+    print_intervals = 1
+    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals)
