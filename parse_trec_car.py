@@ -31,16 +31,22 @@ def convert_to_unicode(text):
     else:
         raise ValueError("Not running on Python 3?")
 
+def fix_encoding(s):
+    # to stop UnicodeEncodeError: 'ascii' codec can't encode character error
+    raw_byte_str = str(s.encode("utf-8"))
+    raw_text = raw_byte_str[2:len(raw_byte_str)-1]
+    return raw_text
 
 def parse_bodies(b):
     body_list = []
     for iB, B in enumerate(b):
         if isinstance(B, ParaLink):
-            body_list.append(['ParaLink', B.pageid, B.page, B.get_text(), B.link_section])
+            print(fix_encoding(s))
+            body_list.append(['ParaLink', B.pageid, B.page, fix_encoding(s=B.get_text()), B.link_section])
         elif isinstance(B, ParaText):
-            body_list.append(['ParaText', B.get_text()])
+            body_list.append(['ParaText', fix_encoding(s=B.get_text())])
         elif isinstance(B, ParaBody):
-            body_list.append(['ParaBody', B.get_text()])
+            body_list.append(['ParaBody', fix_encoding(s=B.get_text())])
         else:
             print("Paragraph body not type")
             raise
@@ -49,16 +55,14 @@ def parse_bodies(b):
 
 def parse_paragraph(skeleton_subclass, spacy_nlp):
     print('paragraph.get_text()')
-    # to stop UnicodeEncodeError: 'ascii' codec can't encode character error
-    raw_byte_str = str(skeleton_subclass.paragraph.get_text().encode("utf-8"))
-    # must be string for spacy
-    raw_text = raw_byte_str[2:len(raw_byte_str)-1]
-    print(raw_text)
-    print(type(raw_text))
+
+    raw_text = fix_encoding(s=skeleton_subclass.paragraph.get_text())
     print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
 
     doc = spacy_nlp(text=raw_text)
     print(list(doc.ents))
+
+    print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
     return [skeleton_subclass.paragraph.para_id,
             skeleton_subclass.paragraph.get_text(),
             parse_bodies(b=skeleton_subclass.paragraph.bodies)]
