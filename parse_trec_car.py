@@ -36,11 +36,11 @@ def parse_bodies(b):
     body_list = []
     for iB, B in enumerate(b):
         if isinstance(B, ParaLink):
-            body_list.append(['ParaLink', B.pageid, B.page, B.get_text(), B.link_section])
+            body_list.append(['ParaLink', B.pageid, B.page, convert_to_unicode(text=B.get_text()), B.link_section])
         elif isinstance(B, ParaText):
-            body_list.append(['ParaText', B.get_text()])
+            body_list.append(['ParaText', convert_to_unicode(B.get_text())])
         elif isinstance(B, ParaBody):
-            body_list.append(['ParaBody', B.get_text()])
+            body_list.append(['ParaBody', convert_to_unicode(B.get_text())])
         else:
             print("Paragraph body not type")
             raise
@@ -48,7 +48,7 @@ def parse_bodies(b):
 
 def parse_paragraph(skeleton_subclass):
     return [skeleton_subclass.paragraph.para_id,
-            skeleton_subclass.paragraph.get_text(),
+            convert_to_unicode(skeleton_subclass.paragraph.get_text()),
             parse_bodies(b=skeleton_subclass.paragraph.bodies)]
 
 
