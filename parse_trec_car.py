@@ -57,6 +57,10 @@ def parse_paragraph(skeleton_subclass, spacy_nlp):
     print(raw_text)
     print(type(raw_text))
 
+    raw_bytes = raw_text.encode("utf-8")
+    print(raw_bytes)
+    print(type(raw_bytes))
+
     doc = spacy_nlp(text=raw_text)
     print(list(doc.ents))
     return [skeleton_subclass.paragraph.para_id,
