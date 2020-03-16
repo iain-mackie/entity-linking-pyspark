@@ -41,7 +41,6 @@ def parse_bodies(b):
     body_list = []
     for iB, B in enumerate(b):
         if isinstance(B, ParaLink):
-            print(fix_encoding(s))
             body_list.append(['ParaLink', B.pageid, B.page, fix_encoding(s=B.get_text()), B.link_section])
         elif isinstance(B, ParaText):
             body_list.append(['ParaText', fix_encoding(s=B.get_text())])
@@ -63,6 +62,7 @@ def parse_paragraph(skeleton_subclass, spacy_nlp):
     print(list(doc.ents))
 
     print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
+
     return [skeleton_subclass.paragraph.para_id,
             skeleton_subclass.paragraph.get_text(),
             parse_bodies(b=skeleton_subclass.paragraph.bodies)]
