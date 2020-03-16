@@ -11,11 +11,11 @@ import six
 # PySpark Schema
 page_schema = StructType([
     StructField("idx", IntegerType(), True),
-    # StructField("page_id", StringType(), True),
-    # StructField("page_name", StringType(), True),
-    # StructField("page_type", StringType(), True),
-    # StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
-    # StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
+    StructField("page_id", StringType(), True),
+    StructField("page_name", StringType(), True),
+    StructField("page_type", StringType(), True),
+    StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
+    StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
 ])
 
 
@@ -97,10 +97,10 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
     parse_skeleton(page.skeleton)
     return spark.createDataFrame([
                 (i,
-                 # convert_to_unicode(page.page_id),
-                 # page.page_name,
-                 # str(page.page_type),
-                 # parse_metadata(page.page_meta),
-                 #parse_skeleton(page.skeleton),
+                 convert_to_unicode(page.page_id),
+                 page.page_name,
+                 str(page.page_type),
+                 parse_metadata(page.page_meta),
+                 parse_skeleton(page.skeleton),
                 )
             ], schema=page_schema)
