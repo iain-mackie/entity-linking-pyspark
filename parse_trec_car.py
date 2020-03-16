@@ -56,7 +56,7 @@ def parse_paragraph(skeleton_subclass, spacy_nlp):
     print('paragraph.get_text()')
 
     raw_text = fix_encoding(s=skeleton_subclass.paragraph.get_text())
-    print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
+    print(raw_text)
 
     doc = spacy_nlp(text=raw_text)
     print(list(doc.ents))
