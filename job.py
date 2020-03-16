@@ -68,9 +68,13 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
     t_start = time.time()
-    num_pages -= 1
+
     with open(read_path, 'rb') as f:
         for i, page in enumerate(iter_pages(f)):
+
+            # stops when 'num_pages' processed
+            if i >= num_pages:
+                break
 
             # build PySpark DataFrame
             df = parse_inputs(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
@@ -78,16 +82,12 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
             # writes PySpark DataFrame to json file
             write_json_from_DataFrame(df=df, path=write_path)
 
-            if (i % print_intervals == 0) and (i != 0):
+            if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
-                print('----- row {} -----'.format(i))
+                print('----- page {} -----'.format(i))
                 print(page.page_id)
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
-
-            # stops when 'num_pages' processed
-            if i >= num_pages:
-                break
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/i))
