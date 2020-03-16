@@ -43,7 +43,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
 
 def write_json_from_DataFrame(df, path):
     """ Writes a PySpark DataFrame to json file """
-    df.write.format('json').save(path)
+    df.write.json(path)
     # with open(path, 'a+') as f:
     #     for j in df.toJSON().collect():
     #         json.dump(j, f, indent=4)
