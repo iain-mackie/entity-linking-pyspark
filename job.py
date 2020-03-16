@@ -41,14 +41,14 @@ def convert_to_unicode(text):
 
 
 def parse_metadata(page_meta):
-    page_meta = {}
-    page_meta['disambiguationNames'] = page_meta.disambiguationNames
-    page_meta['disambiguationIds'] = page_meta.disambiguationIds
-    page_meta['categoryNames'] = page_meta.disambiguationIds
-    page_meta['categoryIds'] = page_meta.disambiguationIds
-    page_meta['inlinkIds'] = page_meta.disambiguationIds
-    page_meta['inlinkAnchors'] = page_meta.disambiguationIds
-    return page_meta
+    d = {}
+    d['disambiguationNames'] = page_meta.disambiguationNames
+    d['disambiguationIds'] = page_meta.disambiguationIds
+    d['categoryNames'] = page_meta.disambiguationIds
+    d['categoryIds'] = page_meta.disambiguationIds
+    d['inlinkIds'] = page_meta.disambiguationIds
+    d['inlinkAnchors'] = page_meta.disambiguationIds
+    return d
 
 
 def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
