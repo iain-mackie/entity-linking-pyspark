@@ -41,12 +41,36 @@ def convert_to_unicode(text):
         raise ValueError("Not running on Python 3?")
 
 
+def parse_skeleton_subclasses(skeleton_subclass):
+    if isinstance(skeleton_subclass, Para):
+        print('IS Para')
+        print(skeleton_subclass)
+
+    elif isinstance(skeleton_subclass, Image):
+        print('IS IMAGE')
+        print(skeleton_subclass)
+
+    elif isinstance(skeleton_subclass, Section):
+        print('IS Section')
+        print(skeleton_subclass)
+
+    elif isinstance(skeleton_subclass, List):
+        print('IS List')
+        print(skeleton_subclass)
+
+    else:
+        print("Page Section not type")
+        raise
+
 def parse_skeleton(skeleton):
-    print(skeleton)
+    """ Parse page.skeleton to array """
+    for i, skeleton_subclass in enumerate(skeleton):
+        parse_skeleton_subclasses(skeleton_subclass)
     return ['STRING', 'STRING']
 
 
 def parse_metadata(page_meta):
+    """ Parse page.page_data to dict """
     d = {}
     d['disambiguationNames'] = page_meta.disambiguationNames
     d['disambiguationIds'] = page_meta.disambiguationIds
