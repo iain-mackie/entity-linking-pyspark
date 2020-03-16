@@ -87,10 +87,10 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100):
                 print('----- page {} -----'.format(i))
                 print(page.page_id)
                 time_delta = time.time() - t_start
-                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/i))
+                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/(i+1)))
 
     time_delta = time.time() - t_start
-    print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/i))
+    print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
 
 
 if __name__ == '__main__':
