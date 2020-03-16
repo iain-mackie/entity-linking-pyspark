@@ -49,10 +49,13 @@ def parse_bodies(b):
 
 def parse_paragraph(skeleton_subclass, spacy_nlp):
     print('paragraph.get_text()')
+    # to stop UnicodeEncodeError: 'ascii' codec can't encode character error
     raw_byte_str = str(skeleton_subclass.paragraph.get_text().encode("utf-8"))
+    # must be string for spacy
     raw_text = raw_byte_str[2:len(raw_byte_str)-1]
     print(raw_text)
     print(type(raw_text))
+    print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
 
     doc = spacy_nlp(text=raw_text)
     print(list(doc.ents))
