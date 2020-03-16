@@ -66,6 +66,7 @@ def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
                  page.page_name,
                  str(page.page_type),
                  parse_metadata(page.page_meta),
+                 parse_skeleton(page.skeleton),
                 )
             ], schema=page_schema)
 
