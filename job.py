@@ -53,13 +53,6 @@ def parse_metadata(page_meta):
 
 def parse_inputs(page, i, spark, spacy_nlp, page_schema=page_schema):
     """ Builds a PySpark DataFrame given a Page and schema """
-    page_meta = {}
-    page_meta['disambiguationNames'] = page.page_meta.disambiguationNames
-    page_meta['disambiguationIds'] = page.page_meta.disambiguationIds
-    page_meta['categoryNames'] = page.page_meta.disambiguationIds
-    page_meta['categoryIds'] = page.page_meta.disambiguationIds
-    page_meta['inlinkIds'] = page.page_meta.disambiguationIds
-    page_meta['inlinkAnchors'] = page.page_meta.disambiguationIds
     return spark.createDataFrame([
                 (i,
                  page.page_id,
