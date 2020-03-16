@@ -52,8 +52,8 @@ def parse_paragraph(skeleton_subclass, spacy_nlp):
     raw_bytes = skeleton_subclass.paragraph.get_text().encode("utf-8")
     print(raw_bytes)
     print(type(raw_bytes))
-
-    raw_text = str(raw_bytes)
+    print(str(raw_bytes))
+    raw_text = str(raw_bytes)[2:len(raw_bytes)]
     print(raw_text)
     print(type(raw_text))
 
