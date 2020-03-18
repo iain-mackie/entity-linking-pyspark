@@ -53,7 +53,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
 def write_csv_from_DataFrame(df, path):
     """ Writes a PySpark DataFrame to json file """
-    d.write.csv(path + '_' + str(time.time()))
+    df.write.csv(path + '_' + str(time.time()))
 
 
 def write_json_from_DataFrame(df, path):
