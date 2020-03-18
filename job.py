@@ -29,6 +29,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
             else:
                 new_row = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
                 df.union(new_row)
+            print(df)
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
