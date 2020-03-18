@@ -15,9 +15,9 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
-    t_start = time.time()
     t_union = 0
     with open(read_path, 'rb') as f:
+        t_start = time.time()
         for i, page in enumerate(iter_pages(f)):
 
             # stops when 'num_pages' processed
