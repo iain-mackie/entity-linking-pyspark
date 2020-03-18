@@ -25,10 +25,10 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
             # build PySpark DataFrame
             if i == 0:
-                df = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
+                df = parse_inputs(page=page, i=i, spark=spark)
             else:
-                new_row = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
-                df.union(new_row)
+                df = df.union(parse_inputs(page=page, i=i, spark=spark))
+
             print(df)
 
             if (i % print_intervals == 0):
@@ -38,12 +38,14 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/(i+1)))
 
-    if write_output:
-        # writes PySpark DataFrame to json file
-        write_json_from_DataFrame(df=df, path=write_path)
-
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
+
+    if write_output:
+        print('WRITING TO JSON')
+        # writes PySpark DataFrame to json file
+        write_json_from_DataFrame(df=df, path=write_path)
+    print('JOB COMPLETE: {}'.format(time_delta))
 
 
 def write_json_from_DataFrame(df, path):
@@ -51,7 +53,7 @@ def write_json_from_DataFrame(df, path):
     with open(path, 'a+') as f:
         for j in df.toJSON().collect():
             json.dump(j, f, indent=4)
-            
+
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
