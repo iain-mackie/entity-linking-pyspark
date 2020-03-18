@@ -124,8 +124,8 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=Fa
                  page.page_name,
                  str(page.page_type),
                  parse_metadata(page.page_meta),
-                 parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
+                 # parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
                 )
-            ], names=page_names)
+            ])
 
 
