@@ -2,7 +2,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType
 
-from trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
+from utils.trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 from parse_trec_car import parse_page
 import spacy
 import time
@@ -48,8 +48,8 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
 def write_json_from_DataFrame(df, path):
     """ Writes a PySpark DataFrame to json file """
-    with open(path, 'a+') as f:
-        f.write(df.toJSON())
+    #with open(path, 'a+') as f:
+    df.coalesce(1).write.format('json').save(path)
 
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'

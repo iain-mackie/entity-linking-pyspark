@@ -3,7 +3,7 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType
 
-from trec_car_tools import Para, ParaBody, ParaText, ParaLink, Section, Image, List
+from utils.trec_car_tools import Para, ParaBody, ParaText, ParaLink, Section, Image, List
 
 import spacy
 import six

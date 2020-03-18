@@ -1,5 +1,5 @@
 
-from trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
+from utils.trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 
 
 
