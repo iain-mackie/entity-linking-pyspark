@@ -16,7 +16,6 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
     t_start = time.time()
-
     with open(read_path, 'rb') as f:
         for i, page in enumerate(iter_pages(f)):
 
@@ -25,11 +24,10 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
                 break
 
             # build PySpark DataFrame
-            df = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
-
-            if write_output:
-                # writes PySpark DataFrame to json file
-                write_json_from_DataFrame(df=df, path=write_path)
+            if i == 0:
+                df = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
+            else:
+                df.union(parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp))
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
@@ -37,6 +35,10 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
                 print(page.page_id)
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/(i+1)))
+
+    if write_output:
+        # writes PySpark DataFrame to json file
+        write_json_from_DataFrame(df=df, path=write_path)
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
@@ -52,8 +54,8 @@ if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     write_path = '/nfs/trec_car/data/test_entity/test.json'
-    num_pages = 10000
-    print_intervals = 10
+    num_pages = 200
+    print_intervals = 5
     write_output = True
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals,
             write_output=write_output)
