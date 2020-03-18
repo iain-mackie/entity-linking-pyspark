@@ -17,7 +17,7 @@ page_schema = StructType([
     StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
     StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
 ])
-
+page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
@@ -52,7 +52,7 @@ def parse_bodies(b):
     return body_list
 
 
-def parse_paragraph(skeleton_subclass, spacy_nlp):
+def parse_paragraph(skeleton_subclass, spacy_nlp, write_para=True):
     print('paragraph.get_text()')
 
     raw_text = fix_encoding(s=skeleton_subclass.paragraph.get_text())
@@ -63,15 +63,20 @@ def parse_paragraph(skeleton_subclass, spacy_nlp):
 
     print(parse_bodies(b=skeleton_subclass.paragraph.bodies))
 
-    return [skeleton_subclass.paragraph.para_id,
-            skeleton_subclass.paragraph.get_text(),
-            parse_bodies(b=skeleton_subclass.paragraph.bodies)]
+    parse_paragraph =  [skeleton_subclass.paragraph.para_id,
+                        skeleton_subclass.paragraph.get_text(),
+                        parse_bodies(b=skeleton_subclass.paragraph.bodies)]
+
+    if write_para:
+        print('*** write para ***')
+
+    return parse_paragraph
 
 
-def parse_skeleton_subclasses(skeleton_subclass, spacy_nlp):
+def parse_skeleton_subclasses(skeleton_subclass, spacy_nlp, write_para=False):
     if isinstance(skeleton_subclass, Para):
         print('IS Para')
-        return parse_paragraph(skeleton_subclass, spacy_nlp)
+        return parse_paragraph(skeleton_subclass, spacy_nlp, write_para)
 
     elif isinstance(skeleton_subclass, Image):
         print('IS IMAGE')
@@ -90,17 +95,20 @@ def parse_skeleton_subclasses(skeleton_subclass, spacy_nlp):
         raise
 
 
-def parse_skeleton(skeleton, spacy_nlp):
+def parse_skeleton(skeleton, spacy_nlp, write_para=False):
     """ Parse page.skeleton to array """
     skeleton_list = []
     for i, skeleton_subclass in enumerate(skeleton):
-        skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass, spacy_nlp))
+        skeleton_list.append(parse_skeleton_subclasses(skeleton_subclass=skeleton_subclass,
+                                                       spacy_nlp=spacy_nlp,
+                                                       write_para=write_para))
     return skeleton_list
 
 
 def parse_metadata(page_meta):
     """ Parse page.page_data to dict """
-    return {'disambiguationNames': page_meta.disambiguationNames,
+    return {'redirectNames': page_meta.redirectNames,
+            'disambiguationNames': page_meta.disambiguationNames,
             'disambiguationIds': page_meta.disambiguationIds,
             'categoryNames': page_meta.disambiguationIds,
             'categoryIds': page_meta.disambiguationIds,
@@ -108,7 +116,7 @@ def parse_metadata(page_meta):
             'inlinkAnchors': page_meta.disambiguationIds}
 
 
-def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
+def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=False):
     """ Builds a PySpark DataFrame given a Page and schema """
     return spark.createDataFrame([
                 (i,
@@ -116,6 +124,8 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema):
                  page.page_name,
                  str(page.page_type),
                  parse_metadata(page.page_meta),
-                 parse_skeleton(page.skeleton, spacy_nlp),
+                 parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
                 )
-            ], schema=page_schema)
+            ], names=page_names)
+
+

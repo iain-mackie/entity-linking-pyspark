@@ -10,8 +10,8 @@ import json
 import six
 
 
-
-def run_job(read_path, write_path, num_pages=1, print_intervals=100):
+# processing job
+def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_output=False):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
@@ -50,8 +50,11 @@ def write_json_from_DataFrame(df, path):
         json.dump(data, f, indent=4)
 
 if __name__ == '__main__':
-    read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     write_path = '/nfs/trec_car/data/test_entity/test.json'
-    num_pages = 5
-    print_intervals = 1
-    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals)
+    num_pages = 10000
+    print_intervals = 50
+    write_output = True
+    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals,
+            write_output=write_output)
