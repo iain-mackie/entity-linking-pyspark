@@ -163,7 +163,7 @@ def parse_page_1(page, i, spark, spacy_nlp, page_schema=page_schema_1, write_par
                  page.page_meta.categoryNames,
                  page.page_meta.categoryIds,
                  page.page_meta.inlinkIds,
-                 page.page_meta.inlinkAnchors,
+                 # page.page_meta.inlinkAnchors,
                  # parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
                 )
             ], schema=page_schema)
