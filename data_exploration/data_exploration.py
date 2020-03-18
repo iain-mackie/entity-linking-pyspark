@@ -69,14 +69,15 @@ def print_metadata(doc):
 def print_bodies(b):
     for iB, B in enumerate(b):
         if isinstance(B, ParaLink):
-            print('  ParaLink - paragraph.bodies()[{}].pageid:  {}'.format(iB, B.get_text()))
-            print('  ParaLink - paragraph.bodies()[{}].page:  {}'.format(iB, B.page))
-            print('  ParaLink - paragraph.bodies()[{}].get_text():  {}'.format(iB, B.get_text()))
-            print('  ParaLink - paragraph.bodies()[{}].link_section:  {}'.format(iB, B.link_section))
+            print('  ParaLink - paragraph.bodies()[{}].pageid:  |{}|'.format(iB, B.pageid))
+            print('  ParaLink - paragraph.bodies()[{}].page:  |{}|'.format(iB, B.page))
+            print('  ParaLink - paragraph.bodies()[{}].get_text():  |{}|'.format(iB, B.get_text()))
+            print('  ParaLink - paragraph.bodies()[{}].link_section:  |{}|'.format(iB, B.link_section))
+            print('  ParaLink - paragraph.bodies()[{}].anchor_text:  |{}|'.format(iB, B.anchor_text))
         elif isinstance(B, ParaText):
-            print('  ParaText - paragraph.bodies()[{}].get_text(): {}'.format(iB, B.get_text()))
+            print('  ParaText - paragraph.bodies()[{}].get_text(): |{}|'.format(iB, B.text))
         elif isinstance(B, ParaBody):
-            print('  ParaBody - paragraph.bodies()[{}].get_text(): {}'.format(iB, B.get_text()))
+            print('  ParaBody - paragraph.bodies()[{}].get_text(): |{}|'.format(iB, B.get_text()))
         else:
             print("Paragraph not type")
             raise
@@ -192,12 +193,12 @@ def print_doc(doc):
     print('========================= NEW DOC ============================')
     print('==============================================================')
 
-    # print_doc_info(doc)
+    print_doc_info(doc)
     #
     # print_metadata(doc)
 
     print_skeleton(doc)
-
+    #
     # print_child_sections(doc)
     #
     # print_nested_headings(doc)
@@ -209,10 +210,10 @@ def print_doc(doc):
 if __name__ == '__main__':
 
     #path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    path = '/Users/iain/LocalStorage/trec_page_data/unprocessedAllButBenchmark.Y2.cbor'
+    # path = '/Users/iain/LocalStorage/trec_page_data/unprocessedAllButBenchmark.Y2.cbor'
+    path = '/Users/iain/LocalStorage/coding/github/trec-car-entity-processing/data/test.pages.cbor'
     #path = '/home/imackie/Documents/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    id = 1
-
-    doc = get_doc(id=id, path=path)
-    print_doc(doc=doc)
+    for id in range(30):
+        doc = get_doc(id=id, path=path)
+        print_doc(doc=doc)
 
