@@ -48,7 +48,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     if write_output:
         print('WRITING TO FILE')
         # writes PySpark DataFrame to json file
-        write_csv_from_DataFrame(df=df, path=write_path)
+        write_file_from_DataFrame(df=df, path=write_path)
 
     time_delta = time.time() - t_start
     print('JOB COMPLETE: {}'.format(time_delta))
