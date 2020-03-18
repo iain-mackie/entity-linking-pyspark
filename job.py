@@ -10,7 +10,7 @@ import json
 import six
 
 
-# processing job
+# processing pyspark job
 def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_output=False):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
@@ -44,10 +44,16 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     print('df.schema:')
     print(df.schema)
     if write_output:
-        print('WRITING TO JSON')
+        print('WRITING TO FILE')
         # writes PySpark DataFrame to json file
-        write_json_from_DataFrame(df=df, path=write_path)
+        write_csv_from_DataFrame(df=df, path=write_path)
+    time_delta = time.time() - t_start
     print('JOB COMPLETE: {}'.format(time_delta))
+
+
+def write_csv_from_DataFrame(df, path):
+    """ Writes a PySpark DataFrame to json file """
+    df.coalesce(1).write.format("csv").option("header", "true").save(path+str(time.time()))
 
 
 def write_json_from_DataFrame(df, path):
@@ -55,6 +61,8 @@ def write_json_from_DataFrame(df, path):
     with open(path, 'a+') as f:
         for j in df.toJSON().collect():
             json.dump(j, f, indent=4)
+
+
 
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
