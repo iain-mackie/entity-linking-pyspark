@@ -29,8 +29,9 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
             print(df)
             print()
 
-            # writes PySpark DataFrame to json file
-            write_json_from_DataFrame(df=df, path=write_path)
+            if write_output:
+                # writes PySpark DataFrame to json file
+                write_json_from_DataFrame(df=df, path=write_path)
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
