@@ -15,7 +15,7 @@ page_schema = StructType([
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
     StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
-    StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
+    # StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
 ])
 page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
 
@@ -126,6 +126,6 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=Fa
                  parse_metadata(page.page_meta),
                  # parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
                 )
-            ])
+            ], schema=page_schema)
 
 
