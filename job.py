@@ -25,11 +25,9 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
             # build PySpark DataFrame
             if i == 0:
-                df = parse_inputs(page=page, i=i, spark=spark)
+                df = parse_inputs(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
             else:
-                df = df.union(parse_inputs(page=page, i=i, spark=spark))
-
-            print(df)
+                df.union(parse_inputs(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp))
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
