@@ -53,7 +53,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
 def write_csv_from_DataFrame(df, path):
     """ Writes a PySpark DataFrame to json file """
-    df.write.csv(path + '_' + str(time.time()))
+    df.write.parquet(path + '_' + str(time.time()))
 
 
 def write_json_from_DataFrame(df, path):
@@ -67,7 +67,7 @@ def write_json_from_DataFrame(df, path):
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
-    write_path = '/nfs/trec_car/data/test_entity/test.json'
+    write_path = '/nfs/trec_car/data/test_entity/test.parquet'
     num_pages = 200
     print_intervals = 5
     write_output = True
