@@ -39,7 +39,9 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
+    print('df.show():')
     print(df.show())
+    print('df.schema:')
     print(df.schema)
     if write_output:
         print('WRITING TO JSON')
