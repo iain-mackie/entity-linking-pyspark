@@ -49,8 +49,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 def write_json_from_DataFrame(df, path):
     """ Writes a PySpark DataFrame to json file """
     with open(path, 'a+') as f:
-        for data in df.toJSON().collect():
-            json.dump(data, f, indent=4)
+        f.write(df.toJSON())
 
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
