@@ -127,7 +127,7 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=Fa
                 (i,
                  page.page_id,
                  page.page_name,
-                 page.page_type,
+                 str(page.page_type),
                  page.page_meta.redirectNames,
                  page.page_meta.disambiguationNames,
                  page.page_meta.disambiguationIds,

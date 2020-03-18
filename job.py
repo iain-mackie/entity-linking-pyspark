@@ -39,28 +39,25 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
+
     print('df.show():')
     print(df.show())
     print('df.schema:')
-    print(df.schema)
+    df.printSchema()
+
     if write_output:
         print('WRITING TO FILE')
         # writes PySpark DataFrame to json file
         write_csv_from_DataFrame(df=df, path=write_path)
+
     time_delta = time.time() - t_start
     print('JOB COMPLETE: {}'.format(time_delta))
 
 
-def write_csv_from_DataFrame(df, path):
-    """ Writes a PySpark DataFrame to json file """
-    df.write.parquet(path + '_' + str(time.time()))
-
-
-def write_json_from_DataFrame(df, path):
-    """ Writes a PySpark DataFrame to json file """
-    with open(path, 'a+') as f:
-        for j in df.toJSON().collect():
-            json.dump(j, f, indent=4)
+def write_file_from_DataFrame(df, path, file_type='parquet'):
+    """ Writes a PySpark DataFrame to different file formats """
+    if file_type == 'parquet':
+        df.write.parquet(path + '_' + str(time.time()))
 
 
 
