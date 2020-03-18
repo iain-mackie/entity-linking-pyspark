@@ -193,11 +193,11 @@ def print_doc(doc):
     print('========================= NEW DOC ============================')
     print('==============================================================')
 
-    print_doc_info(doc)
+    # print_doc_info(doc)
     #
-    # print_metadata(doc)
+    print_metadata(doc)
 
-    print_skeleton(doc)
+    # print_skeleton(doc)
     #
     # print_child_sections(doc)
     #

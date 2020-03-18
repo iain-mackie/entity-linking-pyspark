@@ -22,9 +22,9 @@ page_schema = StructType([
     StructField("inlinkIds", ArrayType(StringType(), True), True),
     StructField("inlinkAnchors", ArrayType(
         StructType([
-            StructField("class", StringType(), False),
-            StructField("description", IntegerType(), False)]),
-        True))
+            StructField("user", StringType()),
+            StructField("product", IntegerType())
+        ]), True), True)
 ])
 page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
 
