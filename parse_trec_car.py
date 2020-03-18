@@ -32,7 +32,26 @@ page_schema = StructType([
             StructField("frequency", IntegerType())
         ]), True), True)
 ])
-page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
+
+page_schema_1 = StructType([
+    StructField("idx", IntegerType(), True),
+    StructField("page_id", StringType(), True),
+    StructField("page_name", StringType(), True),
+    StructField("page_type", StringType(), True),
+    StructField("redirectNames", ArrayType(
+        StringType(), True), True),
+    StructField("disambiguationNames", ArrayType(
+        StringType(), True), True),
+    StructField("disambiguationIds", ArrayType(
+        StringType(), True), True),
+    StructField("categoryNames", ArrayType(
+        StringType(), True), True),
+    StructField("categoryIds", ArrayType(
+        StringType(), True), True),
+    StructField("inlinkIds", ArrayType(
+        StringType(), True), True),
+])
+
 
 def convert_to_unicode(text):
     """Converts `text` to Unicode (if it's not already), assuming utf-8 input."""
@@ -130,6 +149,24 @@ def parse_metadata(page_meta):
             'inlinkIds': page_meta.disambiguationIds,
             'inlinkAnchors': page_meta.disambiguationIds}
 
+
+def parse_page_1(page, i, spark, spacy_nlp, page_schema=page_schema_1, write_para=False):
+    """ Builds a PySpark DataFrame given a Page and schema """
+    return spark.createDataFrame([
+                (i,
+                 page.page_id,
+                 page.page_name,
+                 str(page.page_type),
+                 page.page_meta.redirectNames,
+                 page.page_meta.disambiguationNames,
+                 page.page_meta.disambiguationIds,
+                 page.page_meta.categoryNames,
+                 page.page_meta.categoryIds,
+                 page.page_meta.inlinkIds,
+                 page.page_meta.inlinkAnchors,
+                 # parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
+                )
+            ], schema=page_schema)
 
 def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=False):
     """ Builds a PySpark DataFrame given a Page and schema """
