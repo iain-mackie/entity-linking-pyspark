@@ -14,8 +14,13 @@ page_schema = StructType([
     StructField("page_id", StringType(), True),
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
-    StructField("page_meta", MapType(StringType(), ArrayType(StringType(), True), True), True),
-    # StructField("skeleton", ArrayType(ArrayType(StringType(), True), True), True),
+    StructField("redirectNames", ArrayType(StringType(), True), True),
+    StructField("disambiguationNames", ArrayType(StringType(), True), True),
+    StructField("disambiguationIds", ArrayType(StringType(), True), True),
+    StructField("categoryNames", ArrayType(StringType(), True), True),
+    StructField("categoryIds", ArrayType(StringType(), True), True),
+    StructField("inlinkIds", ArrayType(StringType(), True), True),
+    StructField("inlinkAnchors", ArrayType(StringType(), True), True),
 ])
 page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
 
@@ -123,7 +128,13 @@ def parse_page(page, i, spark, spacy_nlp, page_schema=page_schema, write_para=Fa
                  page.page_id,
                  page.page_name,
                  str(page.page_type),
-                 parse_metadata(page.page_meta),
+                 page_meta.redirectNames,
+                 page_meta.disambiguationNames,
+                 page_meta.disambiguationIds,
+                 page_meta.categoryNames,
+                 page_meta.categoryIds,
+                 page_meta.inlinkIds,
+                 page_meta.inlinkAnchors,
                  # parse_skeleton(skeleton=page.skeleton, spacy_nlp=spacy_nlp, write_para=True),
                 )
             ], schema=page_schema)
