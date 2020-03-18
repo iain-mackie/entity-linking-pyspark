@@ -66,7 +66,7 @@ if __name__ == '__main__':
     #read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     write_path = '/nfs/trec_car/data/test_entity/full.parquet'
     num_pages = 10000
-    print_intervals = 5
+    print_intervals = 100
     write_output = True
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals,
             write_output=write_output)
