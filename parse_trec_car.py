@@ -14,16 +14,22 @@ page_schema = StructType([
     StructField("page_id", StringType(), True),
     StructField("page_name", StringType(), True),
     StructField("page_type", StringType(), True),
-    StructField("redirectNames", ArrayType(StringType(), True), True),
-    StructField("disambiguationNames", ArrayType(StringType(), True), True),
-    StructField("disambiguationIds", ArrayType(StringType(), True), True),
-    StructField("categoryNames", ArrayType(StringType(), True), True),
-    StructField("categoryIds", ArrayType(StringType(), True), True),
-    StructField("inlinkIds", ArrayType(StringType(), True), True),
+    StructField("redirectNames", ArrayType(
+        StringType(), True), True),
+    StructField("disambiguationNames", ArrayType(
+        StringType(), True), True),
+    StructField("disambiguationIds", ArrayType(
+        StringType(), True), True),
+    StructField("categoryNames", ArrayType(
+        StringType(), True), True),
+    StructField("categoryIds", ArrayType(
+        StringType(), True), True),
+    StructField("inlinkIds", ArrayType(
+        StringType(), True), True),
     StructField("inlinkAnchors", ArrayType(
         StructType([
-            StructField("user", StringType()),
-            StructField("product", IntegerType())
+            StructField("anchorText", StringType()),
+            StructField("frequency", IntegerType())
         ]), True), True)
 ])
 page_names = ["idx", "page_id", "page_name", "page_type", "page_meta", "skeleton"]
