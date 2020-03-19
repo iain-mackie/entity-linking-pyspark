@@ -56,4 +56,5 @@ RUN git config --global user.name "iain-mackie"
 
 # load required NLP models
 RUN python3 -m spacy download en_core_web_sm
+RUN pip3 install --ignore-installed spark-nlp==2.4.4
 

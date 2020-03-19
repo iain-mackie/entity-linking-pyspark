@@ -15,48 +15,42 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
     spark = SparkSession.builder.appName('trec_car').getOrCreate()
     spacy_nlp = spacy.load("en_core_web_sm")
-    t_union = 0
+
+    data_list = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
-        for i, page in enumerate(iter_pages(f)):
+        for idx, page in enumerate(f):
 
             # stops when 'num_pages' processed
             if i >= num_pages:
                 break
 
-            # build PySpark DataFrame
-            if i == 0:
-                df = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
-            else:
-                #TODO - need to improve performance
-                new_row = parse_page(page=page, i=i, spark=spark, spacy_nlp=spacy_nlp)
-                t_union_start = time.time()
-                df = df.union(new_row)
-                t_union += time.time() - t_union_start
+            # add
+            data = bytearray(page)
+            data_list.append(data)
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
-                print('----- page {} -----'.format(i))
-                print(page.page_id)
+                print('----- STEP {} -----'.format(i))
                 time_delta = time.time() - t_start
-                print('time elapse: {} --> time / page: {} (time / union: {})'.format(
-                    time_delta, time_delta/(i+1), t_union/(i+1)))
+                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/(i+1)))
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
 
-    print('df.show():')
-    print(df.show())
-    print('df.schema:')
-    df.printSchema()
-
-    if write_output:
-        print('WRITING TO FILE')
-        # writes PySpark DataFrame to json file
-        write_file_from_DataFrame(df=df, path=write_path)
-
-    time_delta = time.time() - t_start
-    print('JOB COMPLETE: {}'.format(time_delta))
+    #
+    # print('df.show():')
+    # print(df.show())
+    # print('df.schema:')
+    # df.printSchema()
+    #
+    # if write_output:
+    #     print('WRITING TO FILE')
+    #     # writes PySpark DataFrame to json file
+    #     write_file_from_DataFrame(df=df, path=write_path)
+    #
+    # time_delta = time.time() - t_start
+    # print('JOB COMPLETE: {}'.format(time_delta))
 
 
 def write_file_from_DataFrame(df, path, file_type='parquet'):
