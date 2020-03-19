@@ -24,7 +24,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     data_list = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
-        for idx, page in enumerate(f):
+        for i, page in enumerate(f):
 
             # stops when 'num_pages' processed
             if i >= num_pages:
@@ -32,7 +32,7 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
             # add
             data = bytearray(page)
-            data_list.append(data)
+            data_list.append([i, data])
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
