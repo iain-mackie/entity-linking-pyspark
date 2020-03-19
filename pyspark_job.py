@@ -4,11 +4,16 @@ from pyspark.sql.types import StructType, StructField, StringType, MapType, Arra
 
 from utils.trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 from parse_trec_car import parse_page
+
 import spacy
 import time
 import json
-import six
 
+
+schema = StructType([
+    StructField("idx", IntegerType(), True),
+    StructField("Page_byte",  StringType(), True),
+])
 
 # processing pyspark job
 def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_output=False):
@@ -38,19 +43,20 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
 
-    #
-    # print('df.show():')
-    # print(df.show())
-    # print('df.schema:')
-    # df.printSchema()
-    #
-    # if write_output:
-    #     print('WRITING TO FILE')
-    #     # writes PySpark DataFrame to json file
-    #     write_file_from_DataFrame(df=df, path=write_path)
-    #
-    # time_delta = time.time() - t_start
-    # print('JOB COMPLETE: {}'.format(time_delta))
+    df = spark.createDataFrame(data=data_list, schema=schema)
+
+    print('df.show():')
+    print(df.show())
+    print('df.schema:')
+    df.printSchema()
+
+    if write_output:
+        print('WRITING TO FILE')
+        # writes PySpark DataFrame to json file
+        write_file_from_DataFrame(df=df, path=write_path)
+
+    time_delta = time.time() - t_start
+    print('JOB COMPLETE: {}'.format(time_delta))
 
 
 def write_file_from_DataFrame(df, path, file_type='parquet'):
@@ -61,11 +67,11 @@ def write_file_from_DataFrame(df, path, file_type='parquet'):
 
 
 if __name__ == '__main__':
-    read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
-    #read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
+    #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     write_path = '/nfs/trec_car/data/test_entity/full.parquet'
-    num_pages = 100000
-    print_intervals = 1000
-    write_output = True
+    num_pages = 200
+    print_intervals = 10
+    write_output = False
     run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals,
             write_output=write_output)
