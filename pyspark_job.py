@@ -13,7 +13,7 @@ import json
 
 schema = StructType([
     StructField("idx", IntegerType(), True),
-    StructField("Page_byte",  StringType(), True),
+    StructField("Page_pickle",  StringType(), True),
 ])
 
 # processing pyspark job
