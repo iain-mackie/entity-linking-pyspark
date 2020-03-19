@@ -80,7 +80,7 @@ def write_file_from_DataFrame(df, path, file_type='parquet'):
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
-    write_path = '/nfs/trec_car/data/test_entity/'
+    write_dir = '/nfs/trec_car/data/test_entity/'
     num_pages = 200
     print_intervals = 10
     write_output = False
