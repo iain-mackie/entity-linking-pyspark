@@ -5,6 +5,7 @@ from pyspark.sql.types import StructType, StructField, StringType, MapType, Arra
 from utils.trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 from parse_trec_car import parse_page
 
+import pickle
 import spacy
 import time
 import json
@@ -24,14 +25,14 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
     data_list = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
-        for i, page in enumerate(f):
+        for i, page in enumerate(iter_pages(f)):
 
             # stops when 'num_pages' processed
             if i >= num_pages:
                 break
 
             # add
-            data = bytearray(page)
+            data = pickle.dumps(page)
             data_list.append([i, data])
 
             if (i % print_intervals == 0):
