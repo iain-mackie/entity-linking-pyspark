@@ -9,7 +9,8 @@ import pickle
 import spacy
 import time
 import json
-
+import os
+import json
 
 schema = StructType([
     StructField("idx", IntegerType(), True),
@@ -17,11 +18,14 @@ schema = StructType([
 ])
 
 # processing pyspark job
-def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_output=False):
+def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
-    spark = SparkSession.builder.appName('trec_car').getOrCreate()
-    spacy_nlp = spacy.load("en_core_web_sm")
+    # spark = SparkSession.builder.appName('trec_car').getOrCreate()
+    # spacy_nlp = spacy.load("en_core_web_sm")
 
+    if write_output:
+        write_path = write_dir + 'data_' + str(time.time()) + '/'
+        os.mkdir(write_path)
     data_list = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
@@ -35,6 +39,17 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
             data = pickle.dumps(page)
             data_list.append([i, data])
 
+            if (i % chunks == 0) and (i != 0 or num_pages == 1):
+                if write_output:
+                    print('WRITING TO FILE')
+                    file_path = write_path + 'data' + str(time.time) + '.json'
+                    with open(file_path, 'w') as f:
+                        json.dump(data, f)
+
+                    data_list = []
+                    # writes PySpark DataFrame to json file
+                    # write_file_from_DataFrame(df=df, path=write_path)
+
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
                 print('----- STEP {} -----'.format(i))
@@ -43,21 +58,16 @@ def run_job(read_path, write_path, num_pages=1, print_intervals=100, write_outpu
 
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
-
-    df = spark.createDataFrame(data=data_list, schema=schema)
-
-    print('df.show():')
-    print(df.show())
-    print('df.schema:')
-    df.printSchema()
-
-    if write_output:
-        print('WRITING TO FILE')
-        # writes PySpark DataFrame to json file
-        write_file_from_DataFrame(df=df, path=write_path)
-
-    time_delta = time.time() - t_start
-    print('JOB COMPLETE: {}'.format(time_delta))
+    #
+    # df = spark.createDataFrame(data=data_list, schema=schema)
+    #
+    # print('df.show():')
+    # print(df.show())
+    # print('df.schema:')
+    # df.printSchema()
+    #
+    # time_delta = time.time() - t_start
+    # print('JOB COMPLETE: {}'.format(time_delta))
 
 
 def write_file_from_DataFrame(df, path, file_type='parquet'):
@@ -70,9 +80,10 @@ def write_file_from_DataFrame(df, path, file_type='parquet'):
 if __name__ == '__main__':
     #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
-    write_path = '/nfs/trec_car/data/test_entity/full.parquet'
+    write_path = '/nfs/trec_car/data/test_entity/'
     num_pages = 200
     print_intervals = 10
     write_output = False
-    run_job(read_path=read_path, write_path=write_path, num_pages=num_pages, print_intervals=print_intervals,
-            write_output=write_output)
+    chunks = 10
+    run_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
+            print_intervals=print_intervals, write_output=write_output)
