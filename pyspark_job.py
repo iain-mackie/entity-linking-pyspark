@@ -120,6 +120,15 @@ def spark_processing(pages_as_pickles):
     def page_skeleton_pickle_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
+    @udf(returnType=StringType())
+    def synthetic_page_skeleton_pickle_udf(s):
+        return "NEW SKELTON"
+
+    @udf(returnType=ArrayType())
+    def synthetic_paragraphs_udf(s):
+        return ("Para_1", "Para_2", "Para_3")
+
+
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
     df = df.withColumn("page_type", page_type_udf("page_pickle"))
@@ -131,11 +140,16 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
     df = df.withColumn("skeleton", page_skeleton_pickle_udf("page_pickle"))
+    df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
+    df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
+    df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
 
     print('df.show():')
     print(df.show())
     print('df.schema:')
     df.printSchema()
+
+    return df
 
 
 def run_spark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
@@ -147,8 +161,7 @@ def run_spark_job(read_path, write_dir, num_pages=1, chunks=100000, print_interv
                                             print_intervals=print_intervals,
                                             write_output=write_output)
 
-    spark_processing(pages_as_pickles=pages_as_pickles)
-
+    return spark_processing(pages_as_pickles=pages_as_pickles)
 
 
 if __name__ == '__main__':
@@ -159,5 +172,5 @@ if __name__ == '__main__':
     print_intervals = 10
     write_output = False
     chunks = 10
-    run_spark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
-                  print_intervals=print_intervals, write_output=write_output)
+    df = run_spark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
+                       print_intervals=print_intervals, write_output=write_output)
