@@ -146,7 +146,7 @@ if __name__ == '__main__':
     write_dir = '/nfs/trec_car/data/test_entity/'
     num_pages = 200
     print_intervals = 10
-    write_output = True
+    write_output = False
     chunks = 10
     run_spark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
                   print_intervals=print_intervals, write_output=write_output)
