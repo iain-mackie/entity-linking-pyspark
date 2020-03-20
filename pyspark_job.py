@@ -112,7 +112,7 @@ def spark_processing(pages_as_pickles):
     def page_inlink_ids_udf(p):
         return pickle.loads(p).page_meta.inlinkIds
 
-    @udf(returnType=StructType([StructField("anchorText", StringType()),StructField("frequency", IntegerType())]))
+    @udf(returnType=ArrayType(StructType([StructField("anchorText", StringType()),StructField("frequency", IntegerType())])))
     def page_inlink_anchors_udf(p):
         return pickle.loads(p).page_meta.inlinkAnchors
 
