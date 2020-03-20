@@ -63,7 +63,7 @@ def spark_processing(pages_as_pickles):
     spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
 
     schema = StructType([
-        StructField("Page_pickle", BinaryType(), True),
+        StructField("page_pickle", BinaryType(), True),
     ])
 
     df = spark.createDataFrame(data=pages_as_pickles, schema=schema)
@@ -74,11 +74,17 @@ def spark_processing(pages_as_pickles):
     df.printSchema()
 
     @udf(returnType=StringType())
-    def squared_udf(Page_pickle):
+    def page_id_udf(Page_pickle):
         Page = pickle.loads(Page_pickle)
         return Page.page_id
 
-    df = df.withColumn("page_id", squared_udf("Page_pickle"))
+    @udf(returnType=StringType())
+    def page_name_udf(Page_pickle):
+        Page = pickle.loads(Page_pickle)
+        return Page.page_name
+
+    df = df.withColumn("page_id", squared_udf("page_pickle"))
+    df = df.withColumn("page_name", page_name_udf("page_pickle"))
 
     print('df.show():')
     print(df.show())
