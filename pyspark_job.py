@@ -12,22 +12,23 @@ import json
 import os
 import json
 
-schema = StructType([
-    StructField("idx", IntegerType(), True),
-    StructField("Page_pickle", BinaryType(), True),
-])
+
+def write_file_from_DataFrame(df, path, file_type='parquet'):
+    """ Writes a PySpark DataFrame to different file formats """
+    if file_type == 'parquet':
+        df.write.parquet(path + '_' + str(time.time()))
 
 
 # processing pyspark job
-def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
-    """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
-    spark = SparkSession.builder.appName('trec_car').getOrCreate()
+def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
+    """ Reads TREC CAR cbor file and returns list of Pages as bytearrays """
     # spacy_nlp = spacy.load("en_core_web_sm")
 
     if write_output:
         write_path = write_dir + 'data_' + str(time.time()) + '/'
         os.mkdir(write_path)
-    data_list = []
+
+    data = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
         for i, page in enumerate(iter_pages(f)):
@@ -37,19 +38,14 @@ def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=10
                 break
 
             # add
-            data = bytearray(pickle.dumps(page))
-
-            data_list.append([i, data])
+            data.append(bytearray(pickle.dumps(page)))
 
             if (i % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
                     print('WRITING TO FILE')
-            #                     file_path = write_path + 'data' + str(time.time) + '.json'
-            #                     with open(file_path, 'w') as f:
-            #                         json.dump(data, f)
-            #                     data_list = []
-            # writes PySpark DataFrame to json file
-            # write_file_from_DataFrame(df=df, path=write_path)
+                    # file_path = write_path + 'data' + str(time.time) + 'XXXX'
+                    # write_to_file()
+                    # data_list = []
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
@@ -60,7 +56,17 @@ def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=10
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta / (i + 1)))
 
-    df = spark.createDataFrame(data=data_list, schema=schema)
+    return data
+
+def spark_processing(pages_as_pickles):
+
+    spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
+
+    schema = StructType([
+        StructField("Page_pickle", BinaryType(), True),
+    ])
+
+    df = spark.createDataFrame(data=pages_as_pickles, schema=schema)
 
     print('df.show():')
     print(df.show())
@@ -81,14 +87,17 @@ def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=10
     print('df.schema:')
     df.printSchema()
 
-    # time_delta = time.time() - t_start
-    # print('JOB COMPLETE: {}'.format(time_delta))
 
+def run_spark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
 
-def write_file_from_DataFrame(df, path, file_type='parquet'):
-    """ Writes a PySpark DataFrame to different file formats """
-    if file_type == 'parquet':
-        df.write.parquet(path + '_' + str(time.time()))
+    pages_as_pickles = get_pages_as_pickles(read_path=read_path,
+                                            write_dir=write_dir,
+                                            num_pages=num_pages,
+                                            chunks=chunks,
+                                            print_intervals=print_intervals,
+                                            write_output=write_output)
+
+    spark_processing(pages_as_pickles=pages_as_pickles)
 
 
 
@@ -100,5 +109,5 @@ if __name__ == '__main__':
     print_intervals = 10
     write_output = True
     chunks = 10
-    run_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
-            print_intervals=print_intervals, write_output=write_output)
+    run_spark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
+                  print_intervals=print_intervals, write_output=write_output)
