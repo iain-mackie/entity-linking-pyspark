@@ -73,7 +73,7 @@ def spark_processing(pages_as_pickles):
     print('df.schema:')
     df.printSchema()
 
-    @udf
+    @udf()
     def page_data_udf(p, flag='page_id'):
         Page = pickle.loads(p)
         if flag == 'page_id':
