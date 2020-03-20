@@ -82,8 +82,8 @@ def spark_processing(pages_as_pickles):
             return Page.page_name
 
 
-    df = df.withColumn("page_id", page_data_udf(p="page_pickle", flag='page_id'), StringType())
-    df = df.withColumn("page_name", page_data_udf(p="page_pickle", flag='page_name'), StringType())
+    df = df.withColumn("page_id", page_data_udf("page_pickle", flag='page_id'), StringType())
+    df = df.withColumn("page_name", page_data_udf("page_pickle", flag='page_name'), StringType())
 
     print('df.show():')
     print(df.show())
