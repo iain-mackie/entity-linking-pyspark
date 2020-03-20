@@ -120,8 +120,8 @@ def spark_processing(pages_as_pickles):
     #     return pickle.loads(p).page_meta.inlinkAnchors
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
-    # df = df.withColumn("page_name", page_name_udf("page_pickle"))
-    # df = df.withColumn("page_type", page_type_udf("page_pickle"))
+    df = df.withColumn("page_name", page_name_udf("page_pickle"))
+    df = df.withColumn("page_type", page_type_udf("page_pickle"))
     # df = df.withColumn("redirect_names", page_redirect_names_udf("page_pickle"))
     # df = df.withColumn("disambiguation_names", page_disambiguation_names_udf("page_pickle"))
     # df = df.withColumn("disambiguation_ids", page_disambiguation_ids_udf("page_pickle"))
