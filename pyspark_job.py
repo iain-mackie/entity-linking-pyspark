@@ -120,9 +120,9 @@ def spark_processing(pages_as_pickles):
     def page_skeleton_pickle_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
-    @udf(returnType=StringType())
+    @udf(returnType=BinaryType())
     def synthetic_page_skeleton_pickle_udf(s):
-        return "NEW SKELTON"
+        return s
 
     @udf(returnType=ArrayType(StringType()))
     def synthetic_paragraphs_udf(s):
