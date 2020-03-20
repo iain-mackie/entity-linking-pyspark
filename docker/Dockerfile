@@ -27,13 +27,16 @@ RUN apt-get install -y python3 \
     python3-pip \
     python-setuptools
 RUN pip3 install \
+    numpy \
+    pandas \
     jupyter \
     jupyterlab \
     py4j \
     cbor \
     transformers \
     spacy \
-    torch
+    torch \
+    pyarrow
 
 # Install Spark
 ENV APACHE_SPARK_VERSION=2.4.5 \

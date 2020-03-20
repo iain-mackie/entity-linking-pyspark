@@ -1,6 +1,6 @@
-
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType
+from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType, ByteType
+from pyspark.sql.functions import udf
 
 from utils.trec_car_tools import iter_pages, Para, ParaBody, ParaText, ParaLink, Section, Image, List
 from parse_trec_car import parse_page
@@ -14,13 +14,14 @@ import json
 
 schema = StructType([
     StructField("idx", IntegerType(), True),
-    StructField("Page_pickle",  StringType(), True),
+    StructField("Page_pickle", BinaryType(), True),
 ])
+
 
 # processing pyspark job
 def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
     """ Runs processing job - reads TREC CAR cbor file and writes new file with improved entity linking """
-    # spark = SparkSession.builder.appName('trec_car').getOrCreate()
+    spark = SparkSession.builder.appName('trec_car').getOrCreate()
     # spacy_nlp = spacy.load("en_core_web_sm")
 
     if write_output:
@@ -36,36 +37,50 @@ def run_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=10
                 break
 
             # add
-            data = pickle.dumps(page)
+            data = bytearray(pickle.dumps(page))
+
             data_list.append([i, data])
 
             if (i % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
                     print('WRITING TO FILE')
-                    file_path = write_path + 'data' + str(time.time) + '.json'
-                    with open(file_path, 'w') as f:
-                        json.dump(data, f)
-
-                    data_list = []
-                    # writes PySpark DataFrame to json file
-                    # write_file_from_DataFrame(df=df, path=write_path)
+            #                     file_path = write_path + 'data' + str(time.time) + '.json'
+            #                     with open(file_path, 'w') as f:
+            #                         json.dump(data, f)
+            #                     data_list = []
+            # writes PySpark DataFrame to json file
+            # write_file_from_DataFrame(df=df, path=write_path)
 
             if (i % print_intervals == 0):
                 # prints update at 'print_pages' intervals
                 print('----- STEP {} -----'.format(i))
                 time_delta = time.time() - t_start
-                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta/(i+1)))
+                print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta / (i + 1)))
 
     time_delta = time.time() - t_start
-    print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta/(i+1)))
-    #
-    # df = spark.createDataFrame(data=data_list, schema=schema)
-    #
-    # print('df.show():')
-    # print(df.show())
-    # print('df.schema:')
-    # df.printSchema()
-    #
+    print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta / (i + 1)))
+
+    df = spark.createDataFrame(data=data_list, schema=schema)
+
+    print('df.show():')
+    print(df.show())
+    print('df.schema:')
+    df.printSchema()
+
+    time_delta = time.time() - t_start
+    print('JOB COMPLETE: {}'.format(time_delta))
+
+    @udf(returnType=StringType())
+    def squared_udf(Page_pickle):
+        Page = pickle.loads(Page_pickle)
+        return Page.page_id
+
+    df = df.select("Page_pickle", squared_udf("Page_pickle").alias("page_id"))
+    print('df.show():')
+    print(df.show())
+    print('df.schema:')
+    df.printSchema()
+
     # time_delta = time.time() - t_start
     # print('JOB COMPLETE: {}'.format(time_delta))
 
