@@ -112,12 +112,9 @@ def spark_processing(pages_as_pickles):
     def page_inlink_ids_udf(p):
         return pickle.loads(p).page_meta.inlinkIds
 
-    # @udf(returnType=StructType([
-    #         StructField("anchorText", StringType()),
-    #         StructField("frequency", IntegerType())
-    #     ]))
-    # def page_inlink_anchors_udf(p):
-    #     return pickle.loads(p).page_meta.inlinkAnchors
+    @udf(returnType=StructType([StructField("anchorText", StringType()),StructField("frequency", IntegerType())]))
+    def page_inlink_anchors_udf(p):
+        return pickle.loads(p).page_meta.inlinkAnchors
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
@@ -128,7 +125,7 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("category_names", page_category_names_udf("page_pickle"))
     df = df.withColumn("category_ids", page_category_ids_udf("page_pickle"))
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
-    # df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
+    df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
 
     print('df.show():')
     print(df.show())
