@@ -73,17 +73,18 @@ def spark_processing(pages_as_pickles):
     print('df.schema:')
     df.printSchema()
 
-    @udf()
-    def page_data_udf(p, flag='page_id'):
+    @udf(returnType=StringType())
+    def page_id_udf(p):
         Page = pickle.loads(p)
-        if flag == 'page_id':
-            return Page.page_id
-        elif flag == 'page_name':
-            return Page.page_name
+        return Page.page_id
 
+    @udf(returnType=StringType())
+    def page_name_udf(p):
+        Page = pickle.loads(p)
+        return Page.page_id
 
-    df = df.withColumn("page_id", page_data_udf("page_pickle", flag='page_id'), StringType())
-    df = df.withColumn("page_name", page_data_udf("page_pickle", flag='page_name'), StringType())
+    df = df.withColumn("page_id", page_id_udf("page_pickle"))
+    df = df.withColumn("page_name", page_name_udf("page_pickle"))
 
     print('df.show():')
     print(df.show())
