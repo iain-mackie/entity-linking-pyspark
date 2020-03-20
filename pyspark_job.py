@@ -38,7 +38,7 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
                 break
 
             # add
-            data.append(bytearray(pickle.dumps(page)))
+            data.append([bytearray(pickle.dumps(page))])
 
             if (i % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
