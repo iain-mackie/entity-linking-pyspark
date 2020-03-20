@@ -107,11 +107,11 @@ def spark_processing(pages_as_pickles):
 
     @udf(returnType=StringType())
     def page_type_udf(p):
-        return pickle.loads(p).page_type
+        return str(pickle.loads(p).page_type)
 
     @udf(returnType=ArrayType(StringType()))
     def page_redirect_names_udf(p):
-        return pickle.loads(p).metadata.redirectNames
+        return pickle.loads(p).page_meta.redirectNames
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
