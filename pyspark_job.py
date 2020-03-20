@@ -78,7 +78,8 @@ def spark_processing(pages_as_pickles):
         Page = pickle.loads(Page_pickle)
         return Page.page_id
 
-    df = df.select("Page_pickle", squared_udf("Page_pickle").alias("page_id"))
+    df = df.withColumn("page_id", squared_udf("Page_pickle"))
+
     print('df.show():')
     print(df.show())
     print('df.schema:')
