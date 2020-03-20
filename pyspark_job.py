@@ -120,32 +120,33 @@ def spark_processing(pages_as_pickles):
     def page_skeleton_pickle_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
-    @udf(returnType=BinaryType())
-    def synthetic_page_skeleton_pickle_udf(s):
-        skeleton_list = []
-        skeleton = pickle.loads(s)
-        for i, skeleton_subclass in enumerate(skeleton):
-            if isinstance(skeleton_subclass, Para):
-                print('IS Para')
-                skeleton_list.append(skeleton_subclass)
-
-            elif isinstance(skeleton_subclass, Image):
-                print('IS IMAGE')
-                return skeleton_subclass
-
-            elif isinstance(skeleton_subclass, Section):
-                print('IS Section')
-                return skeleton_subclass
-
-            elif isinstance(skeleton_subclass, List):
-                print('IS List')
-                return skeleton_subclass
-
-            else:
-                print("Page Section not type")
-                raise
-            # skeleton_list.append(skeleton_subclass)
-        return bytearray(pickle.dumps(skeleton_list))
+    # @udf(returnType=BinaryType())
+    # def synthetic_page_skeleton_pickle_udf(s):
+    #     skeleton_list = []
+    #     skeleton = pickle.loads(s)
+    #     for i, skeleton_subclass in enumerate(skeleton):
+    #         if isinstance(skeleton_subclass, Para):
+    #             print('IS Para')
+    #             text = skeleton_subclass.paragraph.get_text()
+    #
+    #
+    #         # elif isinstance(skeleton_subclass, Image):
+    #         #     print('IS IMAGE')
+    #         #     return skeleton_subclass
+    #         #
+    #         # elif isinstance(skeleton_subclass, Section):
+    #         #     print('IS Section')
+    #         #     return skeleton_subclass
+    #         #
+    #         # elif isinstance(skeleton_subclass, List):
+    #         #     print('IS List')
+    #         #     return skeleton_subclass
+    #         #
+    #         # else:
+    #         #     print("Page Section not type")
+    #         #     raise
+    #         # skeleton_list.append(skeleton_subclass)
+    #     return bytearray(pickle.dumps(skeleton_list))
 
 
     # @udf(returnType=ArrayType(StringType()))
@@ -173,8 +174,7 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
     df = df.withColumn("skeleton", page_skeleton_pickle_udf("page_pickle"))
-    df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
-    df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
+    # df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
     # df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
 
     print('df.show():')
