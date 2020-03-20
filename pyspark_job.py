@@ -73,9 +73,6 @@ def spark_processing(pages_as_pickles):
     print('df.schema:')
     df.printSchema()
 
-    time_delta = time.time() - t_start
-    print('JOB COMPLETE: {}'.format(time_delta))
-
     @udf(returnType=StringType())
     def squared_udf(Page_pickle):
         Page = pickle.loads(Page_pickle)
