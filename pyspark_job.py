@@ -59,33 +59,12 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
     return data
 
 
-# PySpark Schema
-
-    # StructField("redirectNames", ArrayType(
-    #     StringType(), True), True),
-    # StructField("disambiguationNames", ArrayType(
-    #     StringType(), True), True),
-    # StructField("disambiguationIds", ArrayType(
-    #     StringType(), True), True),
-    # StructField("categoryNames", ArrayType(
-    #     StringType(), True), True),
-    # StructField("categoryIds", ArrayType(
-    #     StringType(), True), True),
-    # StructField("inlinkIds", ArrayType(
-    #     StringType(), True), True),
-    # StructField("inlinkAnchors", ArrayType(
-    #     StructType([
-    #         StructField("anchorText", StringType()),
-    #         StructField("frequency", IntegerType())
-    #     ]), True), True)
-
-
-
 
 def spark_processing(pages_as_pickles):
 
     spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
 
+    # PySpark Schema
     schema = StructType([
         StructField("page_pickle", BinaryType(), True),
     ])
@@ -112,6 +91,30 @@ def spark_processing(pages_as_pickles):
     @udf(returnType=ArrayType(StringType()))
     def page_redirect_names_udf(p):
         return pickle.loads(p).page_meta.redirectNames
+
+    @udf(returnType=ArrayType(StringType()))
+    def page_disambiguation_names_udf(p):
+        return pickle.loads(p).page_meta.disambiguationNames
+
+    @udf(returnType=ArrayType(StringType()))
+    def page_disambiguation_ids_udf(p):
+        return pickle.loads(p).page_meta.disambiguationIds
+
+    @udf(returnType=ArrayType(StringType()))
+    def page_category_names_udf(p):
+        return pickle.loads(p).page_meta.categoryNames
+
+    @udf(returnType=ArrayType(StringType()))
+    def page_category_ids_udf(p):
+        return pickle.loads(p).page_meta.categoryIds
+
+    @udf(returnType=ArrayType(StringType()))
+    def page_inlink_ids_udf(p):
+        return pickle.loads(p).page_meta.inlinkIds
+
+    # @udf(returnType=ArrayType(StringType()))
+    # def page_redirect_names_udf(p):
+    #     return pickle.loads(p).page_meta.inlinkAnchors
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
