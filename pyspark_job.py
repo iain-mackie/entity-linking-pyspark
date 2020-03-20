@@ -116,7 +116,7 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
     df = df.withColumn("page_type", page_type_udf("page_pickle"))
-    df = df.withColumn("redirect_names", page_redirectNames_udf("page_pickle"))
+    df = df.withColumn("redirect_names", page_redirect_names_udf("page_pickle"))
 
     print('df.show():')
     print(df.show())
