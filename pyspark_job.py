@@ -118,7 +118,7 @@ def spark_processing(pages_as_pickles):
 
     @udf(returnType=BinaryType())
     def page_skeleton_pickle_udf(p):
-        return bytearray(pickle.dump(pickle.loads(p).skeleton))
+        return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
