@@ -125,12 +125,41 @@ def spark_processing(pages_as_pickles):
         skeleton_list = []
         skeleton = pickle.loads(s)
         for i, skeleton_subclass in enumerate(skeleton):
-            skeleton_list.append(skeleton_subclass)
+            if isinstance(skeleton_subclass, Para):
+                print('IS Para')
+                skeleton_list.append(skeleton_subclass)
+
+            elif isinstance(skeleton_subclass, Image):
+                print('IS IMAGE')
+                return skeleton_subclass
+
+            elif isinstance(skeleton_subclass, Section):
+                print('IS Section')
+                return skeleton_subclass
+
+            elif isinstance(skeleton_subclass, List):
+                print('IS List')
+                return skeleton_subclass
+
+            else:
+                print("Page Section not type")
+                raise
+            # skeleton_list.append(skeleton_subclass)
         return bytearray(pickle.dumps(skeleton_list))
 
-    @udf(returnType=ArrayType(StringType()))
-    def synthetic_paragraphs_udf(s):
-        return ("Para_1", "Para_2", "Para_3")
+
+    # @udf(returnType=ArrayType(StringType()))
+    # def synthetic_paragraphs_udf(s):
+    #     paragraph_list = []
+    #     skeleton = pickle.loads(s)
+    #     for i, skeleton_subclass in enumerate(skeleton):
+    #         if skeleton_subclass == Para:
+    #             paragraph_list.append(skeleton_subclass)
+    #     return bytearray(pickle.dumps(paragraph_list))
+
+    # sythetics_inlink_anchors
+
+    # sythetics_inlink_ids
 
 
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
@@ -146,7 +175,7 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("skeleton", page_skeleton_pickle_udf("page_pickle"))
     df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
     df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
-    df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
+    # df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
 
     print('df.show():')
     print(df.show())
