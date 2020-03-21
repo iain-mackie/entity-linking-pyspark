@@ -60,7 +60,7 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
 
 
 
-def spark_processing(pages_as_pickles):
+def pyspark_processing(pages_as_pickles):
 
     spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
 
@@ -217,7 +217,7 @@ def spark_processing(pages_as_pickles):
     return df
 
 
-def run_spark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
+def run_pyspark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
 
     pages_as_pickles = get_pages_as_pickles(read_path=read_path,
                                             write_dir=write_dir,
@@ -226,7 +226,7 @@ def run_spark_job(read_path, write_dir, num_pages=1, chunks=100000, print_interv
                                             print_intervals=print_intervals,
                                             write_output=write_output)
 
-    return spark_processing(pages_as_pickles=pages_as_pickles)
+    return pyspark_processing(pages_as_pickles=pages_as_pickles)
 
 
 if __name__ == '__main__':
@@ -237,5 +237,5 @@ if __name__ == '__main__':
     print_intervals = 10
     write_output = False
     chunks = 10
-    df = run_spark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
-                       print_intervals=print_intervals, write_output=write_output)
+    df = run_pyspark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
+                         print_intervals=print_intervals, write_output=write_output)
