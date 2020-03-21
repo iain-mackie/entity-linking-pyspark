@@ -76,6 +76,7 @@ def spark_processing(pages_as_pickles):
     print('df.schema:')
     df.printSchema()
 
+    # TODO - multiple columns
     @udf(returnType=StringType())
     def page_id_udf(p):
         return pickle.loads(p).page_id
@@ -121,14 +122,55 @@ def spark_processing(pages_as_pickles):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
     @udf(returnType=BinaryType())
-    def synthetic_page_skeleton_pickle_udf(s):
+    def synthetic_page_skeleton_pickle_udf(p):
+        #TODO - multiple columns
+
+        def get_bodies_from_text(spacy_model, text):
+            doc = spacy_model(text)
+            ned_data = [(ent.text, ent.start_char, ent.end_char) for ent in doc.ents]
+
+            text_i = 0
+            text_end = len(text)
+            new_text = ''
+            bodies = []
+            for span, start_i, end_i in ned_data:
+                if text_i < start_i:
+                    current_span = text[text_i:start_i]
+                    bodies.append(ParaText(text=current_span))
+                    new_text += current_span
+                    text_i = start_i
+
+                current_span = span
+                new_text += current_span
+                bodies.append(ParaLink(page='PAGE NAME',
+                                       pageid='PAGE20%ID',
+                                       link_section=None,
+                                       anchor_text=current_span))
+                text_i = end_i
+
+            if text_i < text_end:
+                current_span = text[text_i:text_end]
+                bodies.append(ParaText(text=current_span))
+                new_text += current_span
+
+            assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
+
+            return bodies
+
+        spacy_model = spacy.load("en_core_web_sm")
+
         skeleton_list = []
-        skeleton = pickle.loads(s)
+        paragraph_list = []
+        skeleton = pickle.loads(p).skeleton
         for i, skeleton_subclass in enumerate(skeleton):
             if isinstance(skeleton_subclass, Para):
-                print('IS Para')
+                para_id = skeleton_subclass.paragraph.para_id
                 text = skeleton_subclass.paragraph.get_text()
+                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
 
+                paragraph = Paragraph(para_id=para_id, bodies=bodies)
+                skeleton_list.append(Para(paragraph))
+                paragraph_list.append(paragraph)
 
             # elif isinstance(skeleton_subclass, Image):
             #     print('IS IMAGE')
@@ -146,17 +188,7 @@ def spark_processing(pages_as_pickles):
             #     print("Page Section not type")
             #     raise
             # skeleton_list.append(skeleton_subclass)
-        return bytearray(pickle.dumps(skeleton_list))
-
-
-    # @udf(returnType=ArrayType(StringType()))
-    # def synthetic_paragraphs_udf(s):
-    #     paragraph_list = []
-    #     skeleton = pickle.loads(s)
-    #     for i, skeleton_subclass in enumerate(skeleton):
-    #         if skeleton_subclass == Para:
-    #             paragraph_list.append(skeleton_subclass)
-    #     return bytearray(pickle.dumps(paragraph_list))
+        return bytearray(pickle.dumps((skeleton_list, paragraph_list)))
 
     # sythetics_inlink_anchors
 
@@ -174,7 +206,7 @@ def spark_processing(pages_as_pickles):
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
     df = df.withColumn("skeleton", page_skeleton_pickle_udf("page_pickle"))
-    # df = df.withColumn("synthetic_skeleton", synthetic_page_skeleton_pickle_udf("skeleton"))
+    df = df.withColumn("synthetic_skeleton_and_paragraphs", synthetic_page_skeleton_pickle_udf("page_pickle"))
     # df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
 
     print('df.show():')
