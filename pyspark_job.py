@@ -273,7 +273,7 @@ def pyspark_processing(pages_data):
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
     df = df.withColumn("skeleton", page_skeleton_udf("page_pickle"))
-    df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_pickle"))
+    # df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_pickle"))
 
     # TODO - remove in production
     print('df.show():')
