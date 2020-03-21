@@ -192,10 +192,10 @@ def pyspark_processing(pages_as_pickles):
                         if isinstance(p, list):
                             for paragraph in p:
                                 if isinstance(paragraph, PARAGRAPH_CLASSES):
-                                    synthetic_paragraphs.append(paragraph)
+                                    p_list.append(paragraph)
                         else:
                             if isinstance(p, PARAGRAPH_CLASSES):
-                                synthetic_paragraphs.append(p)
+                                p_list.append(p)
                     return Section(heading=heading, headingId=headingId, children=s_list), p_list
 
             elif isinstance(skeleton_subclass, List):
