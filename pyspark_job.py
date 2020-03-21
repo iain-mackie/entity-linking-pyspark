@@ -187,9 +187,9 @@ def pyspark_processing(pages_as_pickles):
                     p_list = []
                     for c in children:
                         s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
-                        if isinstance(s, skeleton_list_classes):
+                        if isinstance(s, SKELETON_CLASSES):
                             s_list.append(s)
-                        if isinstance(p, paragraph_list_classes):
+                        if isinstance(p, PARAGRAPH_CLASSES):
                             p_list += p
                     return Section(heading=heading, headingId=headingId, children=s_list), p_list
 
