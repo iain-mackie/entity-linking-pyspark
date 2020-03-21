@@ -168,10 +168,10 @@ def pyspark_processing(pages_as_pickles):
 
             elif isinstance(skeleton_subclass, Image):
                 caption = skeleton_subclass.caption
-                imageurl = skeleton_subclass.imageurl
                 # TODO - what is a paragraph??
-                Image(imageurl=imageurl, caption=caption)
-                return Image, None
+                synthetic_skeleton, _ = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
+                imageurl = skeleton_subclass.imageurl
+                return Image(imageurl=imageurl, caption=synthetic_skeleton), None
 
             elif isinstance(skeleton_subclass, Section):
                 return skeleton_subclass, None
