@@ -201,6 +201,8 @@ def pyspark_processing(pages_as_pickles):
 
             return skeleton_list, paragraph_list
 
+        skeleton_list, paragraph_list = parse_skeleton(skeleton)
+
         return bytearray(pickle.dumps((skeleton_list, paragraph_list)))
 
     # sythetics_inlink_anchors
