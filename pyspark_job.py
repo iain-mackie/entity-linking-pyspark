@@ -1,8 +1,10 @@
+
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType, StructField, StringType, MapType, ArrayType, IntegerType, BinaryType
 from pyspark.sql.functions import udf
 
 from utils.trec_car_tools import iter_pages, Para, Paragraph, ParaBody, ParaText, ParaLink, Section, Image, List
+from parse_trec_car import parse_page
 
 import pickle
 import spacy
@@ -10,7 +12,6 @@ import time
 import json
 import os
 import json
-
 
 # define valid classes
 SKELETON_CLASSES = (Para, List, Section, Image)
@@ -76,14 +77,14 @@ def pyspark_processing(pages_data):
     # creare pyspark DataFrame where each row in a bytearray of trec_car_tool.Page object
     df = spark.createDataFrame(data=pages_data, schema=schema)
 
-    #TODO - remove in production
+    # TODO - remove in production
     print('df.show():')
     print(df.show())
     print('df.schema:')
     df.printSchema()
 
-    #TODO - multiple columns
-    #TODO - do we need al these features explosed in production?
+    # TODO - multiple columns
+    # TODO - do we need al these features explosed in production?
     @udf(returnType=StringType())
     def page_id_udf(p):
         return pickle.loads(p).page_id
@@ -120,7 +121,8 @@ def pyspark_processing(pages_data):
     def page_inlink_ids_udf(p):
         return pickle.loads(p).page_meta.inlinkIds
 
-    @udf(returnType=ArrayType(StructType([StructField("anchor_text", StringType()),StructField("frequency", IntegerType())])))
+    @udf(returnType=ArrayType(
+        StructType([StructField("anchor_text", StringType()), StructField("frequency", IntegerType())])))
     def page_inlink_anchors_udf(p):
         return pickle.loads(p).page_meta.inlinkAnchors
 
@@ -129,9 +131,10 @@ def pyspark_processing(pages_data):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
     @udf(returnType=BinaryType())
-    def synthetic_entity_linking_udf(p):
+    def synthetic_page_skeleton_and_paragraphs_udf(p):
         """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
-        #TODO - multiple columns
+
+        # TODO - multiple columns
 
         def get_bodies_from_text(spacy_model, text):
             """ build list of trec_car_tools ParaText & ParaLink objects (i.e. bodies) from raw text """
@@ -154,7 +157,7 @@ def pyspark_processing(pages_data):
                 # add ParaLink object to bodies list
                 current_span = span
                 new_text += current_span
-                #TODO - entity linking
+                # TODO - entity linking
                 bodies.append(ParaLink(page='STUB_PAGE',
                                        pageid='STUB_PAGE_ID',
                                        link_section=None,
@@ -171,7 +174,6 @@ def pyspark_processing(pages_data):
             assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
 
             return bodies
-
 
         def parse_skeleton_subclass(skeleton_subclass, spacy_model):
             """ parse PageSkeleton object {Para, Image, Section, Section} with new entity linking """
@@ -222,7 +224,7 @@ def pyspark_processing(pages_data):
                 text = skeleton_subclass.get_text()
                 # add synthetic entity linking
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
-                #TODO - what is a paragraph??
+                # TODO - what is a paragraph??
                 p = Paragraph(para_id=para_id, bodies=bodies)
                 return List(level=level, body=p), p
 
@@ -255,11 +257,11 @@ def pyspark_processing(pages_data):
 
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
-        return bytearray(pickle.dumps([synthetic_skeleton, synthetic_paragraphs]))
+        return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
 
-    #TODO -  sythetics_inlink_anchors
+    # TODO -  sythetics_inlink_anchors
 
-    #TODO - sythetics_inlink_ids
+    # TODO - sythetics_inlink_ids
 
     # add PySpark rows
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
@@ -273,7 +275,7 @@ def pyspark_processing(pages_data):
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
     df = df.withColumn("skeleton", page_skeleton_udf("page_pickle"))
-    df = df.withColumn("synthetic_entity_linking", synthetic_entity_linking_udf("page_pickle"))
+    df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_pickle"))
 
     # TODO - remove in production
     print('df.show():')
@@ -285,7 +287,6 @@ def pyspark_processing(pages_data):
 
 
 def run_pyspark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
-
     # extract page data from
     pages_data = get_pages_data(read_path=read_path,
                                 write_dir=write_dir,
@@ -299,12 +300,13 @@ def run_pyspark_job(read_path, write_dir, num_pages=1, chunks=100000, print_inte
 
 
 if __name__ == '__main__':
-    #read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
+    # read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     write_dir = '/nfs/trec_car/data/test_entity/'
     num_pages = 200
     print_intervals = 10
     write_output = False
     chunks = 10
-    df = run_pyspark_job(read_path=read_path,  write_dir=write_dir, num_pages=num_pages, chunks=chunks,
+    df = run_pyspark_job(read_path=read_path, write_dir=write_dir, num_pages=num_pages, chunks=chunks,
                          print_intervals=print_intervals, write_output=write_output)
+
