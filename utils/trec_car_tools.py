@@ -291,7 +291,7 @@ class Section(PageSkeleton):
         self.heading = heading
         self.headingId = headingId
         self.children = list(children)
-        self.child_sections =  [child for child in self.children if isinstance(child, Section)]
+        self.child_sections = [child for child in self.children if isinstance(child, Section)]
 
     def __str__(self, level=1):
         bar = "".join("="*level)

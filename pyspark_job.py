@@ -174,7 +174,10 @@ def pyspark_processing(pages_as_pickles):
                 return Image(imageurl=imageurl, caption=synthetic_skeleton), None
 
             elif isinstance(skeleton_subclass, Section):
-                return skeleton_subclass, None
+                heading = skeleton_subclass.heading
+                headingId = skeleton_subclass.headingId
+                children = skeleton_subclass.children
+                return Section(heading=heading, headingId=headingId, children=children), None
 
             elif isinstance(skeleton_subclass, List):
                 level = skeleton_subclass.level
