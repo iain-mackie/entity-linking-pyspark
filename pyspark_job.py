@@ -12,8 +12,11 @@ import json
 import os
 import json
 
+
+# define valid classes
 SKELETON_CLASSES = (Para, List, Section, Image)
 PARAGRAPH_CLASSES = (Paragraph)
+
 
 def write_file_from_DataFrame(df, path, file_type='parquet'):
     """ Writes a PySpark DataFrame to different file formats """
@@ -21,16 +24,15 @@ def write_file_from_DataFrame(df, path, file_type='parquet'):
         df.write.parquet(path + '_' + str(time.time()))
 
 
-# processing pyspark job
-def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
+def get_pages_data(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
     """ Reads TREC CAR cbor file and returns list of Pages as bytearrays """
-    # spacy_nlp = spacy.load("en_core_web_sm")
 
+    # create new dir to store data chunks
     if write_output:
         write_path = write_dir + 'data_' + str(time.time()) + '/'
         os.mkdir(write_path)
 
-    data = []
+    pages_data = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
         for i, page in enumerate(iter_pages(f)):
@@ -39,9 +41,10 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
             if i >= num_pages:
                 break
 
-            # add
-            data.append([bytearray(pickle.dumps(page))])
+            # add bytearray of trec_car_tool.Page object
+            pages_data.append([bytearray(pickle.dumps(page))])
 
+            # write data chunk to file
             if (i % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
                     print('WRITING TO FILE')
@@ -49,8 +52,8 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
                     # write_to_file()
                     # data_list = []
 
+            # prints update at 'print_pages' intervals
             if (i % print_intervals == 0):
-                # prints update at 'print_pages' intervals
                 print('----- STEP {} -----'.format(i))
                 time_delta = time.time() - t_start
                 print('time elapse: {} --> time / page: {}'.format(time_delta, time_delta / (i + 1)))
@@ -58,11 +61,11 @@ def get_pages_as_pickles(read_path, write_dir, num_pages=1, chunks=100000, print
     time_delta = time.time() - t_start
     print('PROCESSED DATA: {} --> processing time / page: {}'.format(time_delta, time_delta / (i + 1)))
 
-    return data
+    return pages_data
 
 
-
-def pyspark_processing(pages_as_pickles):
+def pyspark_processing(pages_data):
+    """ PySpark pipeline for adding syethetic entity linking and associated metadata """
 
     spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
 
@@ -71,14 +74,17 @@ def pyspark_processing(pages_as_pickles):
         StructField("page_pickle", BinaryType(), True),
     ])
 
-    df = spark.createDataFrame(data=pages_as_pickles, schema=schema)
+    # creare pyspark DataFrame where each row in a bytearray of trec_car_tool.Page object
+    df = spark.createDataFrame(data=pages_data, schema=schema)
 
+    #TODO - remove in production
     print('df.show():')
     print(df.show())
     print('df.schema:')
     df.printSchema()
 
-    # TODO - multiple columns
+    #TODO - multiple columns
+    #TODO - do we need al these features explosed in production?
     @udf(returnType=StringType())
     def page_id_udf(p):
         return pickle.loads(p).page_id
@@ -120,15 +126,19 @@ def pyspark_processing(pages_as_pickles):
         return pickle.loads(p).page_meta.inlinkAnchors
 
     @udf(returnType=BinaryType())
-    def page_skeleton_pickle_udf(p):
+    def page_skeleton_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
     @udf(returnType=BinaryType())
-    def synthetic_page_skeleton_pickle_udf(p):
+    def synthetic_page_skeleton_and_paragraphs_udf(p):
+        """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
         #TODO - multiple columns
 
         def get_bodies_from_text(spacy_model, text):
-            doc = spacy_model(text)
+            """ build list of trec_car_tools ParaText & ParaLink objects (i.e. bodies) from raw text """
+            # nlp process text
+            doc = spacy_model(text=text)
+            # extract NED (named entity detection) features
             ned_data = [(ent.text, ent.start_char, ent.end_char) for ent in doc.ents]
 
             text_i = 0
@@ -137,32 +147,40 @@ def pyspark_processing(pages_as_pickles):
             bodies = []
             for span, start_i, end_i in ned_data:
                 if text_i < start_i:
+                    # add ParaText object to bodies list
                     current_span = text[text_i:start_i]
                     bodies.append(ParaText(text=current_span))
                     new_text += current_span
 
+                # add ParaLink object to bodies list
                 current_span = span
                 new_text += current_span
-                bodies.append(ParaLink(page='BLANK',
-                                       pageid='BLANK',
+                #TODO - entity linking
+                bodies.append(ParaLink(page='STUB_PAGE',
+                                       pageid='STUB_PAGE_ID',
                                        link_section=None,
                                        anchor_text=current_span))
                 text_i = end_i
 
             if text_i < text_end:
+                # add ParaText object to bodies list
                 current_span = text[text_i:text_end]
                 bodies.append(ParaText(text=current_span))
                 new_text += current_span
 
+            # assert appended current_span equal original text
             assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
 
             return bodies
 
+
         def parse_skeleton_subclass(skeleton_subclass, spacy_model):
+            """ parse PageSkeleton object {Para, Image, Section, Section} with new entity linking """
 
             if isinstance(skeleton_subclass, Para):
                 para_id = skeleton_subclass.paragraph.para_id
                 text = skeleton_subclass.paragraph.get_text()
+                # add synthetic entity linking
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 p = Paragraph(para_id=para_id, bodies=bodies)
                 return Para(p), p
@@ -185,6 +203,7 @@ def pyspark_processing(pages_as_pickles):
                 else:
                     s_list = []
                     p_list = []
+                    # loop over Section.children to add entity linking and re-configure to original dimensions
                     for c in children:
                         s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
                         if isinstance(s, SKELETON_CLASSES):
@@ -202,17 +221,17 @@ def pyspark_processing(pages_as_pickles):
                 level = skeleton_subclass.level
                 para_id = skeleton_subclass.body.para_id
                 text = skeleton_subclass.get_text()
+                # add synthetic entity linking
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 #TODO - what is a paragraph??
-                #TODO - Para or Paragraph as body?
                 p = Paragraph(para_id=para_id, bodies=bodies)
                 return List(level=level, body=p), p
 
             else:
-                print("Not expected class")
-                raise
+                raise ValueError("Not expected class")
 
         def parse_skeleton(skeleton, spacy_model):
+            """ parse Page.skeleton (i.e. list of PageSkeleton objects) and add synthetic entity linking """
 
             synthetic_skeleton = []
             synthetic_paragraphs = []
@@ -230,17 +249,20 @@ def pyspark_processing(pages_as_pickles):
 
             return synthetic_skeleton, synthetic_paragraphs
 
+        # initialise spacy_model
         spacy_model = spacy.load("en_core_web_sm")
+        # extract skeleton (list of PageSkeleton objects)
         skeleton = pickle.loads(p).skeleton
-        synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton, spacy_model)
+
+        synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
         return bytearray(pickle.dumps((synthetic_skeleton, synthetic_paragraphs)))
 
-    # sythetics_inlink_anchors
+    #TODO -  sythetics_inlink_anchors
 
-    # sythetics_inlink_ids
+    #TODO - sythetics_inlink_ids
 
-
+    # add PySpark rows
     df = df.withColumn("page_id", page_id_udf("page_pickle"))
     df = df.withColumn("page_name", page_name_udf("page_pickle"))
     df = df.withColumn("page_type", page_type_udf("page_pickle"))
@@ -251,10 +273,10 @@ def pyspark_processing(pages_as_pickles):
     df = df.withColumn("category_ids", page_category_ids_udf("page_pickle"))
     df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_pickle"))
     df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_pickle"))
-    df = df.withColumn("skeleton", page_skeleton_pickle_udf("page_pickle"))
-    df = df.withColumn("synthetic_skeleton_and_paragraphs", synthetic_page_skeleton_pickle_udf("page_pickle"))
-    # df = df.withColumn("synthetic_paragraphs", synthetic_paragraphs_udf("synthetic_skeleton"))
+    df = df.withColumn("skeleton", page_skeleton_udf("page_pickle"))
+    df = df.withColumn("synthetic_skeleton_and_paragraphs", synthetic_page_skeleton_and_paragraphs_udf("page_pickle"))
 
+    # TODO - remove in production
     print('df.show():')
     print(df.show())
     print('df.schema:')
@@ -265,14 +287,15 @@ def pyspark_processing(pages_as_pickles):
 
 def run_pyspark_job(read_path, write_dir, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
 
-    pages_as_pickles = get_pages_as_pickles(read_path=read_path,
-                                            write_dir=write_dir,
-                                            num_pages=num_pages,
-                                            chunks=chunks,
-                                            print_intervals=print_intervals,
-                                            write_output=write_output)
-
-    return pyspark_processing(pages_as_pickles=pages_as_pickles)
+    # extract page data from
+    pages_data = get_pages_data(read_path=read_path,
+                                write_dir=write_dir,
+                                num_pages=num_pages,
+                                chunks=chunks,
+                                print_intervals=print_intervals,
+                                write_output=write_output)
+    
+    return pyspark_processing(pages_data=pages_data)
 
 
 if __name__ == '__main__':
