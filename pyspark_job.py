@@ -12,8 +12,8 @@ import json
 import os
 import json
 
-skeleton_classes = (Para, List, Section, Image)
-paragraph_classes = (Paragraph)
+SKELETON_CLASSES = (Para, List, Section, Image)
+PARAGRAPH_CLASSES = (Paragraph)
 
 def write_file_from_DataFrame(df, path, file_type='parquet'):
     """ Writes a PySpark DataFrame to different file formats """
@@ -163,18 +163,16 @@ def pyspark_processing(pages_as_pickles):
             if isinstance(skeleton_subclass, Para):
                 para_id = skeleton_subclass.paragraph.para_id
                 text = skeleton_subclass.paragraph.get_text()
-                bodies = get_bodies_from_text(spacy_model=spacy_model,
-                                              text=text)
-
+                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 p = Paragraph(para_id=para_id, bodies=bodies)
-                return Para(p), p
+                return Para(p), [p]
 
             elif isinstance(skeleton_subclass, Image):
                 caption = skeleton_subclass.caption
                 # TODO - what is a paragraph??
                 s, p = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
                 imageurl = skeleton_subclass.imageurl
-                return Image(imageurl=imageurl, caption=s), p
+                return Image(imageurl=imageurl, caption=s), [p]
 
             elif isinstance(skeleton_subclass, Section):
                 heading = skeleton_subclass.heading
@@ -182,7 +180,7 @@ def pyspark_processing(pages_as_pickles):
                 children = skeleton_subclass.children
 
                 if len(children) == 0:
-                    return Section(heading=heading, headingId=headingId, children=children), None
+                    return Section(heading=heading, headingId=headingId, children=children), []
 
                 else:
                     s_list = []
@@ -190,7 +188,7 @@ def pyspark_processing(pages_as_pickles):
                     for c in children:
                         s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
                         if isinstance(s, skeleton_list_classes):
-                            s_list += s
+                            s_list.append(s)
                         if isinstance(p, paragraph_list_classes):
                             p_list += p
                     return Section(heading=heading, headingId=headingId, children=s_list), p_list
@@ -201,8 +199,9 @@ def pyspark_processing(pages_as_pickles):
                 text = skeleton_subclass.get_text()
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 #TODO - what is a paragraph??
-                paragraph = Paragraph(para_id=para_id, bodies=bodies)
-                return List(level=level, body=paragraph), paragraph
+                #TODO - Para or Paragraph as body?
+                p = Paragraph(para_id=para_id, bodies=bodies)
+                return List(level=level, body=p), [p]
 
             else:
                 print("Not expected class")
@@ -213,11 +212,13 @@ def pyspark_processing(pages_as_pickles):
             synthetic_skeleton = []
             synthetic_paragraphs = []
             for i, skeleton_subclass in enumerate(skeleton):
-                s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
-                if isinstance(s, skeleton_classes):
+                s, p_list = parse_skeleton_subclass(skeleton_subclass, spacy_model)
+                if isinstance(s, SKELETON_CLASSES):
                     synthetic_skeleton.append(s)
-                if isinstance(p, paragraph_classes):
-                    synthetic_paragraphs.append(p)
+
+                    for p in p_list:
+                        if isinstance(p, PARAGRAPH_CLASSES):
+                            synthetic_paragraphs.append(p)
 
             return synthetic_skeleton, synthetic_paragraphs
 
