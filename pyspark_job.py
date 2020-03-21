@@ -157,8 +157,6 @@ def pyspark_processing(pages_as_pickles):
 
             return bodies
 
-        spacy_model = spacy.load("en_core_web_sm")
-
         def parse_skeleton_subclass(skeleton_subclass):
             if isinstance(skeleton_subclass, Para):
                 para_id = skeleton_subclass.paragraph.para_id
@@ -193,7 +191,6 @@ def pyspark_processing(pages_as_pickles):
 
             skeleton_list = []
             paragraph_list = []
-            skeleton = pickle.loads(p).skeleton
             for i, skeleton_subclass in enumerate(skeleton):
                 s, p = parse_skeleton_subclass(skeleton_subclass)
                 skeleton_list += s
@@ -201,6 +198,8 @@ def pyspark_processing(pages_as_pickles):
 
             return skeleton_list, paragraph_list
 
+        spacy_model = spacy.load("en_core_web_sm")
+        skeleton = pickle.loads(p).skeleton
         skeleton_list, paragraph_list = parse_skeleton(skeleton)
 
         return bytearray(pickle.dumps((skeleton_list, paragraph_list)))
