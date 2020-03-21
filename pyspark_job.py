@@ -189,8 +189,13 @@ def pyspark_processing(pages_as_pickles):
                         s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
                         if isinstance(s, SKELETON_CLASSES):
                             s_list.append(s)
-                        if isinstance(p, PARAGRAPH_CLASSES):
-                            p_list += p
+                        if isinstance(p, list):
+                            for paragraph in p:
+                                if isinstance(paragraph, PARAGRAPH_CLASSES):
+                                    synthetic_paragraphs.append(paragraph)
+                        else:
+                            if isinstance(p, PARAGRAPH_CLASSES):
+                                synthetic_paragraphs.append(p)
                     return Section(heading=heading, headingId=headingId, children=s_list), p_list
 
             elif isinstance(skeleton_subclass, List):
@@ -216,7 +221,7 @@ def pyspark_processing(pages_as_pickles):
                 if isinstance(s, SKELETON_CLASSES):
                     synthetic_skeleton.append(s)
                 if isinstance(p, list):
-                    for paragraph in p_list:
+                    for paragraph in p:
                         if isinstance(paragraph, PARAGRAPH_CLASSES):
                             synthetic_paragraphs.append(paragraph)
                 else:
