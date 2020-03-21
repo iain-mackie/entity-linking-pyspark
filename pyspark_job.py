@@ -218,8 +218,11 @@ def pyspark_processing(pages_as_pickles):
                 if isinstance(p, list):
                     for paragraph in p_list:
                         if isinstance(paragraph, PARAGRAPH_CLASSES):
-                            synthetic_paragraphs.append(p)
-                            
+                            synthetic_paragraphs.append(paragraph)
+                else:
+                    if isinstance(p, PARAGRAPH_CLASSES):
+                        synthetic_paragraphs.append(p)
+
             return synthetic_skeleton, synthetic_paragraphs
 
         spacy_model = spacy.load("en_core_web_sm")
