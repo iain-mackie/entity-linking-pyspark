@@ -128,7 +128,7 @@ def pyspark_processing(pages_data):
     def page_skeleton_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
-    @udf(returnType=StructType([StructField("skeleton", BinaryType()),StructField("paragraphs", BinaryType())]))
+    @udf(returnType=BinaryType())
     def synthetic_entity_linking_udf(p):
         """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
         #TODO - multiple columns
@@ -255,7 +255,7 @@ def pyspark_processing(pages_data):
 
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
-        return bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs))
+        return bytearray(pickle.dumps([synthetic_skeleton, synthetic_paragraphs]))
 
     #TODO -  sythetics_inlink_anchors
 
