@@ -217,7 +217,7 @@ def pyspark_processing(pages_as_pickles):
                 if isinstance(s, skeleton_classes):
                     synthetic_skeleton.append(s)
                 if isinstance(p, paragraph_classes):
-                    synthetic_paragraphs += p
+                    synthetic_paragraphs.append(p)
 
             return synthetic_skeleton, synthetic_paragraphs
 
