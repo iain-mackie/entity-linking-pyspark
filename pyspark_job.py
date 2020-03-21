@@ -199,7 +199,7 @@ def pyspark_processing(pages_as_pickles):
                 if isinstance(s, skeleton_list_classes):
                     skeleton_list.append(s)
                 if isinstance(p, paragraph_list_classes):
-                    paragraph_list += p
+                    paragraph_list.append(p)
 
             return skeleton_list, paragraph_list
 
