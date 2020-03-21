@@ -159,41 +159,48 @@ def pyspark_processing(pages_as_pickles):
 
         spacy_model = spacy.load("en_core_web_sm")
 
-        skeleton_list = []
-        paragraph_list = []
-        skeleton = pickle.loads(p).skeleton
-        for i, skeleton_subclass in enumerate(skeleton):
+        def parse_skeleton_subclass(skeleton_subclass):
             if isinstance(skeleton_subclass, Para):
                 para_id = skeleton_subclass.paragraph.para_id
                 text = skeleton_subclass.paragraph.get_text()
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
 
                 paragraph = Paragraph(para_id=para_id, bodies=bodies)
-                skeleton_list.append(Para(paragraph))
-                paragraph_list.append(paragraph)
+                return Para(paragraph), paragraph
 
-            # elif isinstance(skeleton_subclass, Image):
-            #     print('IS IMAGE')
-            #     return skeleton_subclass
-            #
-            # elif isinstance(skeleton_subclass, Section):
-            #     print('IS Section')
-            #     return skeleton_subclass
-            #
+            elif isinstance(skeleton_subclass, Image):
+                caption = skeleton_subclass.caption
+                imageurl = skeleton_subclass.imageurl
+                # TODO - what is a paragraph??
+                Image(imageurl=imageurl, caption=caption)
+                return Image,
+
+            elif isinstance(skeleton_subclass, Section):
+                return skeleton_subclass, []
+
             elif isinstance(skeleton_subclass, List):
-                print(type(skeleton_subclass.body))
                 level = skeleton_subclass.level
                 para_id = skeleton_subclass.body.para_id
                 text = skeleton_subclass.get_text()
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
-                #TODO - what is a paragraph??
+                # TODO - what is a paragraph??
                 paragraph = Paragraph(para_id=para_id, bodies=bodies)
-                skeleton_list.append(List(level=level, body=paragraph))
-            #
-            # else:
-            #     print("Page Section not type")
-            #     raise
-            # skeleton_list.append(skeleton_subclass)
+                return List(level=level, body=paragraph), []
+
+            return skeleton_list, paragraph_list
+
+        def parse_skeleton(skeleton):
+
+            skeleton_list = []
+            paragraph_list = []
+            skeleton = pickle.loads(p).skeleton
+            for i, skeleton_subclass in enumerate(skeleton):
+                s, p = parse_skeleton_subclass(skeleton_subclass)
+                skeleton_list += s
+                paragraph_list += p
+
+            return skeleton_list, paragraph_list
+
         return bytearray(pickle.dumps((skeleton_list, paragraph_list)))
 
     # sythetics_inlink_anchors
