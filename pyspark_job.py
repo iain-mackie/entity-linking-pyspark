@@ -181,7 +181,7 @@ def pyspark_processing(pages_as_pickles):
             #     return skeleton_subclass
             #
             elif isinstance(skeleton_subclass, List):
-                print(type(List.body))
+                print(type(skeleton_subclass.body))
                 level = skeleton_subclass.level
                 para_id = skeleton_subclass.body.para_id
                 text = skeleton_subclass.get_text()
