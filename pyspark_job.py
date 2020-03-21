@@ -143,8 +143,8 @@ def pyspark_processing(pages_as_pickles):
 
                 current_span = span
                 new_text += current_span
-                bodies.append(ParaLink(page='PAGE NAME',
-                                       pageid='PAGE20%ID',
+                bodies.append(ParaLink(page='BLANK',
+                                       pageid='BLANK',
                                        link_section=None,
                                        anchor_text=current_span))
                 text_i = end_i
@@ -165,14 +165,14 @@ def pyspark_processing(pages_as_pickles):
                 text = skeleton_subclass.paragraph.get_text()
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 p = Paragraph(para_id=para_id, bodies=bodies)
-                return Para(p), [p]
+                return Para(p), p
 
             elif isinstance(skeleton_subclass, Image):
                 caption = skeleton_subclass.caption
                 # TODO - what is a paragraph??
                 s, p = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
                 imageurl = skeleton_subclass.imageurl
-                return Image(imageurl=imageurl, caption=s), [p]
+                return Image(imageurl=imageurl, caption=s), p
 
             elif isinstance(skeleton_subclass, Section):
                 heading = skeleton_subclass.heading
@@ -201,7 +201,7 @@ def pyspark_processing(pages_as_pickles):
                 #TODO - what is a paragraph??
                 #TODO - Para or Paragraph as body?
                 p = Paragraph(para_id=para_id, bodies=bodies)
-                return List(level=level, body=p), [p]
+                return List(level=level, body=p), p
 
             else:
                 print("Not expected class")
@@ -212,14 +212,14 @@ def pyspark_processing(pages_as_pickles):
             synthetic_skeleton = []
             synthetic_paragraphs = []
             for i, skeleton_subclass in enumerate(skeleton):
-                s, p_list = parse_skeleton_subclass(skeleton_subclass, spacy_model)
+                s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
                 if isinstance(s, SKELETON_CLASSES):
                     synthetic_skeleton.append(s)
-
-                    for p in p_list:
-                        if isinstance(p, PARAGRAPH_CLASSES):
+                if isinstance(p, list):
+                    for paragraph in p_list:
+                        if isinstance(paragraph, PARAGRAPH_CLASSES):
                             synthetic_paragraphs.append(p)
-
+                            
             return synthetic_skeleton, synthetic_paragraphs
 
         spacy_model = spacy.load("en_core_web_sm")
