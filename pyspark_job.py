@@ -255,7 +255,7 @@ def pyspark_processing(pages_data):
 
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
-        return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
+        return bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs))
 
     #TODO -  sythetics_inlink_anchors
 
