@@ -128,7 +128,7 @@ def pyspark_processing(pages_data):
     def page_skeleton_udf(p):
         return bytearray(pickle.dumps(pickle.loads(p).skeleton))
 
-    @udf(returnType=BinaryType())
+    @udf(returnType=StructType([StructField("skeleton", StringType()),StructField("paragraphs", IntegerType())]))
     def synthetic_page_skeleton_and_paragraphs_udf(p):
         """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
         #TODO - multiple columns
