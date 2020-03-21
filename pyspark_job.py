@@ -180,9 +180,15 @@ def pyspark_processing(pages_as_pickles):
             #     print('IS Section')
             #     return skeleton_subclass
             #
-            # elif isinstance(skeleton_subclass, List):
-            #     print('IS List')
-            #     return skeleton_subclass
+            elif isinstance(skeleton_subclass, List):
+                print(tyep(List.body))
+                level = skeleton_subclass.level
+                para_id = skeleton_subclass.body.para_id
+                text = skeleton_subclass.get_text()
+                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
+                #TODO - what is a paragraph??
+                paragraph = Paragraph(para_id=para_id, bodies=bodies)
+                skeleton_list.append(List(level=level, body=paragraph))
             #
             # else:
             #     print("Page Section not type")
