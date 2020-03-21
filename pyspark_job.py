@@ -138,7 +138,6 @@ def pyspark_processing(pages_as_pickles):
                     current_span = text[text_i:start_i]
                     bodies.append(ParaText(text=current_span))
                     new_text += current_span
-                    text_i = start_i
 
                 current_span = span
                 new_text += current_span
@@ -182,32 +181,34 @@ def pyspark_processing(pages_as_pickles):
                 para_id = skeleton_subclass.body.para_id
                 text = skeleton_subclass.get_text()
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
-                # TODO - what is a paragraph??
+                #TODO - what is a paragraph??
                 paragraph = Paragraph(para_id=para_id, bodies=bodies)
                 return List(level=level, body=paragraph), None
 
-            return skeleton_list, paragraph_list
+            else:
+                print("Not expected class")
+                raise
 
         def parse_skeleton(skeleton, spacy_model):
             skeleton_list_classes = (Para, List, Section, Image)
             paragraph_list_classes = (Paragraph)
 
-            skeleton_list = []
-            paragraph_list = []
+            synthetic_skeleton = []
+            synthetic_paragraphs = []
             for i, skeleton_subclass in enumerate(skeleton):
                 s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
                 if isinstance(s, skeleton_list_classes):
-                    skeleton_list.append(s)
+                    synthetic_skeleton.append(s)
                 if isinstance(p, paragraph_list_classes):
-                    paragraph_list.append(p)
+                    synthetic_paragraphs.append(p)
 
-            return skeleton_list, paragraph_list
+            return synthetic_skeleton, synthetic_paragraphs
 
         spacy_model = spacy.load("en_core_web_sm")
         skeleton = pickle.loads(p).skeleton
-        skeleton_list, paragraph_list = parse_skeleton(skeleton, spacy_model)
+        synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton, spacy_model)
 
-        return bytearray(pickle.dumps((skeleton_list, paragraph_list)))
+        return bytearray(pickle.dumps((synthetic_skeleton, synthetic_paragraphs)))
 
     # sythetics_inlink_anchors
 
