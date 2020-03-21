@@ -161,15 +161,18 @@ def pyspark_processing(pages_as_pickles):
             if isinstance(skeleton_subclass, Para):
                 para_id = skeleton_subclass.paragraph.para_id
                 text = skeleton_subclass.paragraph.get_text()
-                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
+                bodies = get_bodies_from_text(spacy_model=spacy_model,
+                                              text=text)
 
-                paragraph = Paragraph(para_id=para_id, bodies=bodies)
+                paragraph = Paragraph(para_id=para_id,
+                                      bodies=bodies)
                 return Para(paragraph), paragraph
 
             elif isinstance(skeleton_subclass, Image):
                 caption = skeleton_subclass.caption
                 # TODO - what is a paragraph??
-                synthetic_skeleton, _ = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
+                synthetic_skeleton, _ = parse_skeleton_subclass(skeleton_subclass=caption,
+                                                                spacy_model=spacy_model)
                 imageurl = skeleton_subclass.imageurl
                 return Image(imageurl=imageurl, caption=synthetic_skeleton), None
 
@@ -183,9 +186,11 @@ def pyspark_processing(pages_as_pickles):
                 level = skeleton_subclass.level
                 para_id = skeleton_subclass.body.para_id
                 text = skeleton_subclass.get_text()
-                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
+                bodies = get_bodies_from_text(spacy_model=spacy_model,
+                                              text=text)
                 #TODO - what is a paragraph??
-                paragraph = Paragraph(para_id=para_id, bodies=bodies)
+                paragraph = Paragraph(para_id=para_id,
+                                      bodies=bodies)
                 return List(level=level, body=paragraph), None
 
             else:
