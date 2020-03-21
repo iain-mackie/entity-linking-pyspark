@@ -172,10 +172,10 @@ def pyspark_processing(pages_as_pickles):
                 imageurl = skeleton_subclass.imageurl
                 # TODO - what is a paragraph??
                 Image(imageurl=imageurl, caption=caption)
-                return Image,
+                return Image, None
 
             elif isinstance(skeleton_subclass, Section):
-                return skeleton_subclass, []
+                return skeleton_subclass, None
 
             elif isinstance(skeleton_subclass, List):
                 level = skeleton_subclass.level
@@ -184,18 +184,22 @@ def pyspark_processing(pages_as_pickles):
                 bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
                 # TODO - what is a paragraph??
                 paragraph = Paragraph(para_id=para_id, bodies=bodies)
-                return List(level=level, body=paragraph), []
+                return List(level=level, body=paragraph), None
 
             return skeleton_list, paragraph_list
 
         def parse_skeleton(skeleton, spacy_model):
+            skeleton_list_classes = (Para, List, Section, Image)
+            paragraph_list_classes = (Paragraph)
 
             skeleton_list = []
             paragraph_list = []
             for i, skeleton_subclass in enumerate(skeleton):
                 s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
-                skeleton_list += s
-                paragraph_list += p
+                if isinstance(s, skeleton_list_classes):
+                    skeleton_list.append(s)
+                if isinstance(p, paragraph_list_classes):
+                    paragraph_list += p
 
             return skeleton_list, paragraph_list
 
