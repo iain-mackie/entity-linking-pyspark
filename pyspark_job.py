@@ -250,7 +250,7 @@ def pyspark_processing(pages_data):
             return synthetic_skeleton, synthetic_paragraphs
 
         # initialise spacy_model
-        spacy_model = spacy.load("en_core_web_sm")
+        spacy_model = spacy.load("en_core_web_lg")
         # extract skeleton (list of PageSkeleton objects)
         skeleton = pickle.loads(p).skeleton
 
