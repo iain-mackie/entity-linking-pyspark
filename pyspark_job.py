@@ -33,7 +33,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
         os.mkdir(dir_path)
 
     def write_to_parquet(data, parquet_path):
-        """ write  """
+        """ write data chunks to parquet """
         pd.DataFrame(data, columns=['page_id', 'page_bytearray']).to_parquet(parquet_path)
 
     pages_data = []
@@ -49,10 +49,10 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
             pages_data.append([page.page_id, bytearray(pickle.dumps(page))])
 
             # write data chunk to file
-            if (i % chunks == 0) and (i != 0 or num_pages == 1):
+            if ((i+1) % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
                     print('WRITING TO FILE: {}'.format(i))
-                    parquet_path = dir_path + 'page_data_step_' + str(i) + '.parquet'
+                    parquet_path = dir_path + 'page_data_step_' + str(i+1) + '.parquet'
                     write_to_parquet(data=pages_data, parquet_path=parquet_path)
 
                     # begin new list
@@ -66,7 +66,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
     if write_output and (len(pages_data) > 0):
         print('WRITING FINAL FILE: {}'.format(i))
-        parquet_path = dir_path + 'page_data_step_' + str(i) + '.parquet'
+        parquet_path = dir_path + 'page_data_step_' + str(i+1) + '.parquet'
         write_to_parquet(data=pages_data, parquet_path=parquet_path)
 
     time_delta = time.time() - t_start
