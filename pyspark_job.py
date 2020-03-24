@@ -198,7 +198,7 @@ def pyspark_processing(dir_path):
                     if isinstance(p, PARAGRAPH_CLASSES):
                         synthetic_paragraphs.append(p)
 
-            return (synthetic_skeleton, synthetic_paragraphs)
+            return synthetic_skeleton, synthetic_paragraphs
 
         # initialise spacy_model
         spacy_model = spacy.load("en_core_web_lg")
