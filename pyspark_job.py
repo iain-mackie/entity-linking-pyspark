@@ -79,7 +79,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 def pyspark_processing(dir_path):
     """ PySpark pipeline for adding syethetic entity linking and associated metadata """
 
-    @udf(returnType=StructType([StructField("skeleton", BinaryType()), StructField("paragraphs", BinaryType())]))
+    @udf(returnType=BinaryType())
     def synthetic_page_skeleton_and_paragraphs_udf(p):
         """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
 
@@ -206,7 +206,7 @@ def pyspark_processing(dir_path):
 
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
-        return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
+        return bytearray(pickle.dumps([synthetic_skeleton, synthetic_paragraphs]))
 
 
     # TODO -  sythetics_inlink_anchors
