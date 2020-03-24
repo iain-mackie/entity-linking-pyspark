@@ -214,48 +214,44 @@ def pyspark_processing(dir_path):
     # TODO -  sythetics_inlink_anchors
     # TODO - sythetics_inlink_ids
     # TODO - expose metadata?
-    #
+
     # add PySpark rows
     spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
 
     # creare pyspark DataFrame where each row in a bytearray of trec_car_tool.Page object
-    # PySpark Schema
-    # schema = StructType([
-    #     StructField("page_bytearray", BinaryType(), True),
-    # ])
     df = spark.read.parquet(dir_path)
 
-    # TODO - remove in production
     print('START f.printSchema():')
     df.printSchema()
-    # print('df.show():')
-    # print(df.show())
 
     df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
 
-    # TODO - remove in production
     print('END df.printSchema():')
     df.printSchema()
-    # print('df.show():')
-    # print(df.show())
 
     return df
 
 def read_from_protobuf():
+    """ """
+    #TODO - desc
+    # TODO - write
     with open(path, "rb") as f:
         print("read values")
         simple_message_read = page_pb2.PageMessage().FromString(f.read())
 
 def write_to_protobuf(df, path, print_intervals=1000):
-
+    """ """
+    #TODO - desc
     t_start = time.time()
     with open(path, "wb") as f:
+        #TODO - not efficient to load into memory
         for i, row in enumerate(df.rdd.collect()):
             page_message = page_pb2.PageMessage()
             page_message.idx = row[0]
             page_message.chunk = row[1]
             page_message.page_id = row[2]
             page_message.page_name = row[3]
+            #TODO - double pickle punchy?
             page_message.page = pickle.dumps(pickle.loads(row[4]))
             page_message.synthetic_paragraphs = pickle.dumps(pickle.loads(row[5])[0])
             page_message.synthetic_skeleton = pickle.dumps(pickle.loads(row[5])[1])
@@ -264,13 +260,14 @@ def write_to_protobuf(df, path, print_intervals=1000):
             f.write(bytesAsString)
 
             if (i % print_intervals == 0):
-                print("written row {} - page_id={} in {}s".format(i, row[0], time.time()-t_start))
+                print("written row {} - page_id={} (time = {})".format(i, row[0], time.time()-t_start))
 
-    print('FINISHED in {}s'.format(time.time()-t_start))
+    print('FINISHED in {}'.format(time.time()-t_start))
 
 
 def run_pyspark_job(read_path, dir_path, output_path, num_pages=1, chunks=100000, print_intervals=100,
                     write_output=False):
+    #TODO - not always write files?? if os.exist?
     # extract page data from
     write_pages_data_to_dir(read_path=read_path,
                             dir_path=dir_path,
