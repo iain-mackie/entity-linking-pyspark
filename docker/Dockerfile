@@ -36,7 +36,8 @@ RUN pip3 install \
     transformers \
     spacy \
     torch \
-    pyarrow
+    pyarrow \
+    protobuf
 
 # Install Spark
 ENV APACHE_SPARK_VERSION=2.4.5 \

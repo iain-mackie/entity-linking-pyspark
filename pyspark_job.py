@@ -56,7 +56,6 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
             if ((i+1) % chunks == 0) and (i != 0 or num_pages == 1):
                 if write_output:
                     print('WRITING TO FILE: {}'.format(i))
-                    parquet_path = dir_path + 'page_data_chunk_' + str(chunk) + '.parquet'
                     write_to_parquet(data=pages_data, dir_path=dir_path, chunk=chunk)
 
                     # begin new list

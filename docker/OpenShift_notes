@@ -23,7 +23,7 @@ spec:
     spec:
       containers:
       - name: deepo-ml-plus-imackie
-        image: iainmackie/trec-car-entity-processing:v10
+        image: iainmackie/trec-car-entity-processing:v11
         resources:
           requests:
             cpu: "8000m"
