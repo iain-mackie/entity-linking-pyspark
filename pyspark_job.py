@@ -198,7 +198,7 @@ def pyspark_processing(dir_path):
                     if isinstance(p, PARAGRAPH_CLASSES):
                         synthetic_paragraphs.append(p)
 
-            return synthetic_skeleton, synthetic_paragraphs
+            return (synthetic_skeleton, synthetic_paragraphs)
 
         # initialise spacy_model
         spacy_model = spacy.load("en_core_web_lg")
@@ -206,7 +206,6 @@ def pyspark_processing(dir_path):
         skeleton = pickle.loads(p).skeleton
 
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
-
 
         return bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs))
 
@@ -226,20 +225,18 @@ def pyspark_processing(dir_path):
     df = spark.read.parquet(dir_path)
 
     # TODO - remove in production
-    print('df.schema:')
+    print('START f.printSchema():')
     df.printSchema()
-    print('df.show():')
-    print(df.show())
-
+    # print('df.show():')
+    # print(df.show())
 
     df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
 
     # TODO - remove in production
-    print('df.schema:')
+    print('END df.printSchema():')
     df.printSchema()
-    print('df.show():')
-    print(df.show())
-
+    # print('df.show():')
+    # print(df.show())
 
     return df
 
