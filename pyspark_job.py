@@ -46,7 +46,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
                 break
 
             # add bytearray of trec_car_tool.Page object
-            pages_data.append([bytearray(pickle.dumps(page))])
+            pages_data.append([page.page_id, bytearray(pickle.dumps(page))])
 
             # write data chunk to file
             if (i % chunks == 0) and (i != 0 or num_pages == 1):
