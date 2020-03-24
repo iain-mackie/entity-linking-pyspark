@@ -239,8 +239,36 @@ def pyspark_processing(dir_path):
 
     return df
 
+def read_from_protobuf()
+    with open(path, "rb") as f:
+        print("read values")
+        simple_message_read = page_pb2.PageMessage().FromString(f.read())
 
-def run_pyspark_job(read_path, dir_path, num_pages=1, chunks=100000, print_intervals=100, write_output=False):
+def write_to_protobuf(df, path, print_intervals=1000):
+
+    t_start = time.time()
+    with open(path, "wb") as f:
+        for i, row in enumerate(df.rdd.collect()):
+            page_message = page_pb2.PageMessage()
+            page_message.idx = row[0]
+            page_message.chunk = row[1]
+            page_message.page_id = row[2]
+            page_message.page_name = row[3]
+            page_message.page = pickle.dumps(pickle.loads(row[4]))
+            page_message.synthetic_paragraphs = pickle.dumps(pickle.loads(row[5])[0])
+            page_message.synthetic_skeleton = pickle.dumps(pickle.loads(row[5])[1])
+
+            bytesAsString = page_message.SerializeToString()
+            f.write(bytesAsString)
+
+            if (i % print_intervals == 0):
+                print("written row {} - page_id={} in ".format(i, page_id, time.time()-t_start))
+
+    print('FINISHED')
+
+
+def run_pyspark_job(read_path, dir_path, num_pages=1, chunks=100000, print_intervals=100, write_output=False,
+                    output_path=output_path):
     # extract page data from
     write_pages_data_to_dir(read_path=read_path,
                             dir_path=dir_path,
@@ -250,17 +278,20 @@ def run_pyspark_job(read_path, dir_path, num_pages=1, chunks=100000, print_inter
                             write_output=write_output)
 
     # process page data adding synthetic entity links
-    return pyspark_processing(dir_path=dir_path)
+    df = pyspark_processing(dir_path=dir_path)
+
+    write_to_protobuf(df=df, path=output_path, print_intervals=print_intervals)
 
 
 if __name__ == '__main__':
     # read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     dir_path = '/nfs/trec_car/data/test_entity/data_{}/'.format(str(time.time()))
-    num_pages = 7
+    output_path = '/nfs/trec_car/data/test_entity/output.bin'
+    num_pages = 50
     write_output = True
-    chunks = 2
-    print_intervals = 2
+    chunks = 5
+    print_intervals = 5
     df = run_pyspark_job(read_path=read_path, dir_path=dir_path, num_pages=num_pages, chunks=chunks,
-                         print_intervals=print_intervals, write_output=write_output)
+                         print_intervals=print_intervals, write_output=write_output, output_path=output_path)
 
