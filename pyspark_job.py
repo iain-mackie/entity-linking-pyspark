@@ -28,6 +28,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
     # create new dir to store data chunks
     if os.path.isdir(dir_path == False) and write_output:
+        print('making dir:'.format(dir_path))
         os.mkdir(dir_path)
 
     def write_to_parquet(data, parquet_path):
@@ -312,7 +313,7 @@ if __name__ == '__main__':
 
     dir_path = '/nfs/trec_car/data/test_entity/data_{}/'.format(str(time.time()))
     num_pages = 7
-    write_output = False
+    write_output = True
     chunks = 2
     print_intervals = 2
     df = run_pyspark_job(read_path=read_path, dir_path=dir_path, num_pages=num_pages, chunks=chunks,
