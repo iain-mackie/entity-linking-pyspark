@@ -310,10 +310,10 @@ if __name__ == '__main__':
     # read_path = '/nfs/trec_car/data/pages/unprocessedAllButBenchmark.Y2.cbor'
     read_path = '/nfs/trec_car/entity_processing/trec-car-entity-processing/data/test.pages.cbor'
     dir_path = '/nfs/trec_car/data/test_entity/'
-    num_pages = 1
+    num_pages = 7
     write_output = False
-    chunks = 10
-    print_intervals = 10
+    chunks = 2
+    print_intervals = 2
     df = run_pyspark_job(read_path=read_path, dir_path=dir_path, num_pages=num_pages, chunks=chunks,
                          print_intervals=print_intervals, write_output=write_output)
 
