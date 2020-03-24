@@ -8,10 +8,6 @@ message PageMessage {
     string page_id = 3;
     string page_name = 4;
     bytes page_bytearray = 5;
-    SyntheticEntityLinkingMessage synthetic_entity_linking = 6;
-}
-
-message SyntheticEntityLinkingMessage {
-    bytes skeleton = 1;
-    bytes paragraphs = 2;
+    bytes synthetic_skeleton = 6;
+    bytes synthetic_paragraphs = 7;
 }

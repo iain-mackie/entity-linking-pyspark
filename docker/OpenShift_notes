@@ -26,8 +26,8 @@ spec:
         image: iainmackie/trec-car-entity-processing:v11
         resources:
           requests:
-            cpu: "8000m"
-            memory: "64Gi"
+            cpu: "4000m"
+            memory: "32Gi"
           limits:
             cpu: "16000m"
             memory: "128Gi"

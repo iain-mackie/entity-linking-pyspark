@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\npage.proto\"\xa7\x01\n\x0bPageMessage\x12\x0b\n\x03idx\x18\x01 \x01(\x03\x12\r\n\x05\x63hunk\x18\x02 \x01(\x03\x12\x0f\n\x07page_id\x18\x03 \x01(\t\x12\x11\n\tpage_name\x18\x04 \x01(\t\x12\x16\n\x0epage_bytearray\x18\x05 \x01(\x0c\x12@\n\x18synthetic_entity_linking\x18\x06 \x01(\x0b\x32\x1e.SyntheticEntityLinkingMessage\"E\n\x1dSyntheticEntityLinkingMessage\x12\x10\n\x08skeleton\x18\x01 \x01(\x0c\x12\x12\n\nparagraphs\x18\x02 \x01(\x0c\x62\x06proto3'
+  serialized_pb=b'\n\npage.proto\"\x9f\x01\n\x0bPageMessage\x12\x0b\n\x03idx\x18\x01 \x01(\x03\x12\r\n\x05\x63hunk\x18\x02 \x01(\x03\x12\x0f\n\x07page_id\x18\x03 \x01(\t\x12\x11\n\tpage_name\x18\x04 \x01(\t\x12\x16\n\x0epage_bytearray\x18\x05 \x01(\x0c\x12\x1a\n\x12synthetic_skeleton\x18\x06 \x01(\x0c\x12\x1c\n\x14synthetic_paragraphs\x18\x07 \x01(\x0c\x62\x06proto3'
 )
 
 
@@ -67,9 +67,16 @@ _PAGEMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='synthetic_entity_linking', full_name='PageMessage.synthetic_entity_linking', index=5,
-      number=6, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
+      name='synthetic_skeleton', full_name='PageMessage.synthetic_skeleton', index=5,
+      number=6, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR),
+    _descriptor.FieldDescriptor(
+      name='synthetic_paragraphs', full_name='PageMessage.synthetic_paragraphs', index=6,
+      number=7, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
@@ -86,50 +93,10 @@ _PAGEMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=15,
-  serialized_end=182,
+  serialized_end=174,
 )
 
-
-_SYNTHETICENTITYLINKINGMESSAGE = _descriptor.Descriptor(
-  name='SyntheticEntityLinkingMessage',
-  full_name='SyntheticEntityLinkingMessage',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='skeleton', full_name='SyntheticEntityLinkingMessage.skeleton', index=0,
-      number=1, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-    _descriptor.FieldDescriptor(
-      name='paragraphs', full_name='SyntheticEntityLinkingMessage.paragraphs', index=1,
-      number=2, type=12, cpp_type=9, label=1,
-      has_default_value=False, default_value=b"",
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      serialized_options=None, file=DESCRIPTOR),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  serialized_options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=184,
-  serialized_end=253,
-)
-
-_PAGEMESSAGE.fields_by_name['synthetic_entity_linking'].message_type = _SYNTHETICENTITYLINKINGMESSAGE
 DESCRIPTOR.message_types_by_name['PageMessage'] = _PAGEMESSAGE
-DESCRIPTOR.message_types_by_name['SyntheticEntityLinkingMessage'] = _SYNTHETICENTITYLINKINGMESSAGE
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
 PageMessage = _reflection.GeneratedProtocolMessageType('PageMessage', (_message.Message,), {
@@ -138,13 +105,6 @@ PageMessage = _reflection.GeneratedProtocolMessageType('PageMessage', (_message.
   # @@protoc_insertion_point(class_scope:PageMessage)
   })
 _sym_db.RegisterMessage(PageMessage)
-
-SyntheticEntityLinkingMessage = _reflection.GeneratedProtocolMessageType('SyntheticEntityLinkingMessage', (_message.Message,), {
-  'DESCRIPTOR' : _SYNTHETICENTITYLINKINGMESSAGE,
-  '__module__' : 'page_pb2'
-  # @@protoc_insertion_point(class_scope:SyntheticEntityLinkingMessage)
-  })
-_sym_db.RegisterMessage(SyntheticEntityLinkingMessage)
 
 
 # @@protoc_insertion_point(module_scope)
