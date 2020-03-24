@@ -5,6 +5,7 @@ from pyspark.sql.functions import udf
 
 from utils.trec_car_tools import iter_pages, Para, Paragraph, ParaBody, ParaText, ParaLink, Section, Image, List
 
+import pandas as pd
 import pickle
 import spacy
 import time
