@@ -143,134 +143,134 @@ def pyspark_processing(dir_path):
     # def page_skeleton_udf(p):
     #     return bytearray(pickle.dumps(pickle.loads(p).skeleton))
     #
-    # @udf(returnType=BinaryType())
-    # def synthetic_page_skeleton_and_paragraphs_udf(p):
-    #     """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
-    #
-    #     # TODO - multiple columns
-    #
-    #     def get_bodies_from_text(spacy_model, text):
-    #         """ build list of trec_car_tools ParaText & ParaLink objects (i.e. bodies) from raw text """
-    #         # nlp process text
-    #         doc = spacy_model(text=text)
-    #         # extract NED (named entity detection) features
-    #         ned_data = [(ent.text, ent.start_char, ent.end_char) for ent in doc.ents]
-    #
-    #         text_i = 0
-    #         text_end = len(text)
-    #         new_text = ''
-    #         bodies = []
-    #         for span, start_i, end_i in ned_data:
-    #             if text_i < start_i:
-    #                 # add ParaText object to bodies list
-    #                 current_span = text[text_i:start_i]
-    #                 bodies.append(ParaText(text=current_span))
-    #                 new_text += current_span
-    #
-    #             # add ParaLink object to bodies list
-    #             current_span = span
-    #             new_text += current_span
-    #             # TODO - entity linking
-    #             bodies.append(ParaLink(page='STUB_PAGE',
-    #                                    pageid='STUB_PAGE_ID',
-    #                                    link_section=None,
-    #                                    anchor_text=current_span))
-    #             text_i = end_i
-    #
-    #         if text_i < text_end:
-    #             # add ParaText object to bodies list
-    #             current_span = text[text_i:text_end]
-    #             bodies.append(ParaText(text=current_span))
-    #             new_text += current_span
-    #
-    #         # assert appended current_span equal original text
-    #         assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
-    #
-    #         return bodies
-    #
-    #     def parse_skeleton_subclass(skeleton_subclass, spacy_model):
-    #         """ parse PageSkeleton object {Para, Image, Section, Section} with new entity linking """
-    #
-    #         if isinstance(skeleton_subclass, Para):
-    #             para_id = skeleton_subclass.paragraph.para_id
-    #             text = skeleton_subclass.paragraph.get_text()
-    #             # add synthetic entity linking
-    #             bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
-    #             p = Paragraph(para_id=para_id, bodies=bodies)
-    #             return Para(p), p
-    #
-    #         elif isinstance(skeleton_subclass, Image):
-    #             caption = skeleton_subclass.caption
-    #             # TODO - what is a paragraph??
-    #             s, p = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
-    #             imageurl = skeleton_subclass.imageurl
-    #             return Image(imageurl=imageurl, caption=s), p
-    #
-    #         elif isinstance(skeleton_subclass, Section):
-    #             heading = skeleton_subclass.heading
-    #             headingId = skeleton_subclass.headingId
-    #             children = skeleton_subclass.children
-    #
-    #             if len(children) == 0:
-    #                 return Section(heading=heading, headingId=headingId, children=children), []
-    #
-    #             else:
-    #                 s_list = []
-    #                 p_list = []
-    #                 # loop over Section.children to add entity linking and re-configure to original dimensions
-    #                 for c in children:
-    #                     s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
-    #                     if isinstance(s, SKELETON_CLASSES):
-    #                         s_list.append(s)
-    #                     if isinstance(p, list):
-    #                         for paragraph in p:
-    #                             if isinstance(paragraph, PARAGRAPH_CLASSES):
-    #                                 p_list.append(paragraph)
-    #                     else:
-    #                         if isinstance(p, PARAGRAPH_CLASSES):
-    #                             p_list.append(p)
-    #                 return Section(heading=heading, headingId=headingId, children=s_list), p_list
-    #
-    #         elif isinstance(skeleton_subclass, List):
-    #             level = skeleton_subclass.level
-    #             para_id = skeleton_subclass.body.para_id
-    #             text = skeleton_subclass.get_text()
-    #             # add synthetic entity linking
-    #             bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
-    #             # TODO - what is a paragraph??
-    #             p = Paragraph(para_id=para_id, bodies=bodies)
-    #             return List(level=level, body=p), p
-    #
-    #         else:
-    #             raise ValueError("Not expected class")
-    #
-    #     def parse_skeleton(skeleton, spacy_model):
-    #         """ parse Page.skeleton (i.e. list of PageSkeleton objects) and add synthetic entity linking """
-    #
-    #         synthetic_skeleton = []
-    #         synthetic_paragraphs = []
-    #         for i, skeleton_subclass in enumerate(skeleton):
-    #             s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
-    #             if isinstance(s, SKELETON_CLASSES):
-    #                 synthetic_skeleton.append(s)
-    #             if isinstance(p, list):
-    #                 for paragraph in p:
-    #                     if isinstance(paragraph, PARAGRAPH_CLASSES):
-    #                         synthetic_paragraphs.append(paragraph)
-    #             else:
-    #                 if isinstance(p, PARAGRAPH_CLASSES):
-    #                     synthetic_paragraphs.append(p)
-    #
-    #         return synthetic_skeleton, synthetic_paragraphs
-    #
-    #     # initialise spacy_model
-    #     spacy_model = spacy.load("en_core_web_lg")
-    #     # extract skeleton (list of PageSkeleton objects)
-    #     skeleton = pickle.loads(p).skeleton
-    #
-    #     synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
-    #
-    #     return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
+    @udf(returnType=BinaryType())
+    def synthetic_page_skeleton_and_paragraphs_udf(p):
+        """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
+
+        # TODO - multiple columns
+
+        def get_bodies_from_text(spacy_model, text):
+            """ build list of trec_car_tools ParaText & ParaLink objects (i.e. bodies) from raw text """
+            # nlp process text
+            doc = spacy_model(text=text)
+            # extract NED (named entity detection) features
+            ned_data = [(ent.text, ent.start_char, ent.end_char) for ent in doc.ents]
+
+            text_i = 0
+            text_end = len(text)
+            new_text = ''
+            bodies = []
+            for span, start_i, end_i in ned_data:
+                if text_i < start_i:
+                    # add ParaText object to bodies list
+                    current_span = text[text_i:start_i]
+                    bodies.append(ParaText(text=current_span))
+                    new_text += current_span
+
+                # add ParaLink object to bodies list
+                current_span = span
+                new_text += current_span
+                # TODO - entity linking
+                bodies.append(ParaLink(page='STUB_PAGE',
+                                       pageid='STUB_PAGE_ID',
+                                       link_section=None,
+                                       anchor_text=current_span))
+                text_i = end_i
+
+            if text_i < text_end:
+                # add ParaText object to bodies list
+                current_span = text[text_i:text_end]
+                bodies.append(ParaText(text=current_span))
+                new_text += current_span
+
+            # assert appended current_span equal original text
+            assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
+
+            return bodies
+
+        def parse_skeleton_subclass(skeleton_subclass, spacy_model):
+            """ parse PageSkeleton object {Para, Image, Section, Section} with new entity linking """
+
+            if isinstance(skeleton_subclass, Para):
+                para_id = skeleton_subclass.paragraph.para_id
+                text = skeleton_subclass.paragraph.get_text()
+                # add synthetic entity linking
+                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
+                p = Paragraph(para_id=para_id, bodies=bodies)
+                return Para(p), p
+
+            elif isinstance(skeleton_subclass, Image):
+                caption = skeleton_subclass.caption
+                # TODO - what is a paragraph??
+                s, p = parse_skeleton_subclass(skeleton_subclass=caption, spacy_model=spacy_model)
+                imageurl = skeleton_subclass.imageurl
+                return Image(imageurl=imageurl, caption=s), p
+
+            elif isinstance(skeleton_subclass, Section):
+                heading = skeleton_subclass.heading
+                headingId = skeleton_subclass.headingId
+                children = skeleton_subclass.children
+
+                if len(children) == 0:
+                    return Section(heading=heading, headingId=headingId, children=children), []
+
+                else:
+                    s_list = []
+                    p_list = []
+                    # loop over Section.children to add entity linking and re-configure to original dimensions
+                    for c in children:
+                        s, p = parse_skeleton_subclass(skeleton_subclass=c, spacy_model=spacy_model)
+                        if isinstance(s, SKELETON_CLASSES):
+                            s_list.append(s)
+                        if isinstance(p, list):
+                            for paragraph in p:
+                                if isinstance(paragraph, PARAGRAPH_CLASSES):
+                                    p_list.append(paragraph)
+                        else:
+                            if isinstance(p, PARAGRAPH_CLASSES):
+                                p_list.append(p)
+                    return Section(heading=heading, headingId=headingId, children=s_list), p_list
+
+            elif isinstance(skeleton_subclass, List):
+                level = skeleton_subclass.level
+                para_id = skeleton_subclass.body.para_id
+                text = skeleton_subclass.get_text()
+                # add synthetic entity linking
+                bodies = get_bodies_from_text(spacy_model=spacy_model, text=text)
+                # TODO - what is a paragraph??
+                p = Paragraph(para_id=para_id, bodies=bodies)
+                return List(level=level, body=p), p
+
+            else:
+                raise ValueError("Not expected class")
+
+        def parse_skeleton(skeleton, spacy_model):
+            """ parse Page.skeleton (i.e. list of PageSkeleton objects) and add synthetic entity linking """
+
+            synthetic_skeleton = []
+            synthetic_paragraphs = []
+            for i, skeleton_subclass in enumerate(skeleton):
+                s, p = parse_skeleton_subclass(skeleton_subclass, spacy_model)
+                if isinstance(s, SKELETON_CLASSES):
+                    synthetic_skeleton.append(s)
+                if isinstance(p, list):
+                    for paragraph in p:
+                        if isinstance(paragraph, PARAGRAPH_CLASSES):
+                            synthetic_paragraphs.append(paragraph)
+                else:
+                    if isinstance(p, PARAGRAPH_CLASSES):
+                        synthetic_paragraphs.append(p)
+
+            return synthetic_skeleton, synthetic_paragraphs
+
+        # initialise spacy_model
+        spacy_model = spacy.load("en_core_web_lg")
+        # extract skeleton (list of PageSkeleton objects)
+        skeleton = pickle.loads(p).skeleton
+
+        synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
+
+        return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
     #
     # # TODO -  sythetics_inlink_anchors
     #
@@ -288,14 +288,14 @@ def pyspark_processing(dir_path):
     # df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_bytearray"))
     # df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_bytearray"))
     # df = df.withColumn("skeleton", page_skeleton_udf("page_bytearray"))
-    # df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
-    #
-    # # TODO - remove in production
-    # print('df.show():')
-    # print(df.show())
-    # print('df.schema:')
-    # df.printSchema()
-    #
+    df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
+
+    # TODO - remove in production
+    print('df.show():')
+    print(df.show())
+    print('df.schema:')
+    df.printSchema()
+
     return df
 
 
