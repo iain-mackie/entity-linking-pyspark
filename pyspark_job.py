@@ -34,7 +34,8 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
     def write_to_parquet(data, parquet_path):
         """ write data chunks to parquet """
-        pd.DataFrame(data, columns=['idx', 'chunk', 'page_id', 'page_name', 'page_bytearray']).to_parquet(parquet_path)
+        columns = ['idx', 'chunk', 'page_id', 'page_name', 'page_meta', 'page_bytearray']
+        pd.DataFrame(data, columns=columns).to_parquet(parquet_path)
 
     chunk = 0
     pages_data = []
@@ -47,7 +48,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
                 break
 
             # add bytearray of trec_car_tool.Page object
-            pages_data.append([i, chunk, page.page_id, page.page_name, bytearray(pickle.dumps(page))])
+            pages_data.append([i, chunk, page.page_id, page.page_name, page.page_meta, bytearray(pickle.dumps(page))])
 
             # write data chunk to file
             if ((i+1) % chunks == 0) and (i != 0 or num_pages == 1):
