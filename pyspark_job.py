@@ -79,75 +79,12 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
 def pyspark_processing(dir_path):
     """ PySpark pipeline for adding syethetic entity linking and associated metadata """
-
-    spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
-
-    # PySpark Schema
-    schema = StructType([
-        StructField("page_bytearray", BinaryType(), True),
-    ])
-
-    # creare pyspark DataFrame where each row in a bytearray of trec_car_tool.Page object
-    df = spark.read.parquet(dir_path)
-
-    # TODO - remove in production
-    print('df.show():')
-    print(df.show())
-    print('df.schema:')
-    df.printSchema()
-
     # # TODO - multiple columns
     # # TODO - do we need al these features explosed in production?
-    # @udf(returnType=StringType())
-    # def page_id_udf(p):
-    #     return pickle.loads(p).page_id
-    #
-    # @udf(returnType=StringType())
-    # def page_name_udf(p):
-    #     return pickle.loads(p).page_name
-    #
-    # @udf(returnType=StringType())
-    # def page_type_udf(p):
-    #     return str(pickle.loads(p).page_type)
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_redirect_names_udf(p):
-    #     return pickle.loads(p).page_meta.redirectNames
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_disambiguation_names_udf(p):
-    #     return pickle.loads(p).page_meta.disambiguationNames
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_disambiguation_ids_udf(p):
-    #     return pickle.loads(p).page_meta.disambiguationIds
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_category_names_udf(p):
-    #     return pickle.loads(p).page_meta.categoryNames
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_category_ids_udf(p):
-    #     return pickle.loads(p).page_meta.categoryIds
-    #
-    # @udf(returnType=ArrayType(StringType()))
-    # def page_inlink_ids_udf(p):
-    #     return pickle.loads(p).page_meta.inlinkIds
-    #
-    # @udf(returnType=ArrayType(
-    #     StructType([StructField("anchor_text", StringType()), StructField("frequency", IntegerType())])))
-    # def page_inlink_anchors_udf(p):
-    #     return pickle.loads(p).page_meta.inlinkAnchors
-    #
-    # @udf(returnType=BinaryType())
-    # def page_skeleton_udf(p):
-    #     return bytearray(pickle.dumps(pickle.loads(p).skeleton))
-    #
+
     @udf(returnType=BinaryType())
     def synthetic_page_skeleton_and_paragraphs_udf(p):
         """ PySpark udf creating a new Page.skeleton with synthetic entity linking + paragraph list """
-
-        # TODO - multiple columns
 
         def get_bodies_from_text(spacy_model, text):
             """ build list of trec_car_tools ParaText & ParaLink objects (i.e. bodies) from raw text """
@@ -187,6 +124,7 @@ def pyspark_processing(dir_path):
             assert new_text == text, {"TEXT: {} \nNEW TEXT: {}"}
 
             return bodies
+
 
         def parse_skeleton_subclass(skeleton_subclass, spacy_model):
             """ parse PageSkeleton object {Para, Image, Section, Section} with new entity linking """
@@ -244,6 +182,7 @@ def pyspark_processing(dir_path):
             else:
                 raise ValueError("Not expected class")
 
+
         def parse_skeleton(skeleton, spacy_model):
             """ parse Page.skeleton (i.e. list of PageSkeleton objects) and add synthetic entity linking """
 
@@ -271,23 +210,28 @@ def pyspark_processing(dir_path):
         synthetic_skeleton, synthetic_paragraphs = parse_skeleton(skeleton=skeleton, spacy_model=spacy_model)
 
         return (bytearray(pickle.dumps(synthetic_skeleton)), bytearray(pickle.dumps(synthetic_paragraphs)))
+
+
+    # TODO -  sythetics_inlink_anchors
+    # TODO - sythetics_inlink_ids
+    # TODO - expose metadata?
     #
-    # # TODO -  sythetics_inlink_anchors
-    #
-    # # TODO - sythetics_inlink_ids
-    #
-    # # add PySpark rows
-    # df = df.withColumn("page_id", page_id_udf("page_bytearray"))
-    # df = df.withColumn("page_name", page_name_udf("page_bytearray"))
-    # df = df.withColumn("page_type", page_type_udf("page_bytearray"))
-    # df = df.withColumn("redirect_names", page_redirect_names_udf("page_bytearray"))
-    # df = df.withColumn("disambiguation_names", page_disambiguation_names_udf("page_bytearray"))
-    # df = df.withColumn("disambiguation_ids", page_disambiguation_ids_udf("page_bytearray"))
-    # df = df.withColumn("category_names", page_category_names_udf("page_bytearray"))
-    # df = df.withColumn("category_ids", page_category_ids_udf("page_bytearray"))
-    # df = df.withColumn("inlink_ids", page_inlink_ids_udf("page_bytearray"))
-    # df = df.withColumn("inlink_anchors", page_inlink_anchors_udf("page_bytearray"))
-    # df = df.withColumn("skeleton", page_skeleton_udf("page_bytearray"))
+    # add PySpark rows
+    spark = SparkSession.builder.appName('trec_car_spark').getOrCreate()
+
+    # creare pyspark DataFrame where each row in a bytearray of trec_car_tool.Page object
+    # PySpark Schema
+    # schema = StructType([
+    #     StructField("page_bytearray", BinaryType(), True),
+    # ])
+    df = spark.read.parquet(dir_path)
+
+    # TODO - remove in production
+    print('df.show():')
+    print(df.show())
+    print('df.schema:')
+    df.printSchema()
+
     df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
 
     # TODO - remove in production
