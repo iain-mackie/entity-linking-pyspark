@@ -226,18 +226,20 @@ def pyspark_processing(dir_path):
     df = spark.read.parquet(dir_path)
 
     # TODO - remove in production
-    print('df.show():')
-    print(df.show())
     print('df.schema:')
     df.printSchema()
+    print('df.show():')
+    print(df.show())
+
 
     df = df.withColumn("synthetic_entity_linking", synthetic_page_skeleton_and_paragraphs_udf("page_bytearray"))
 
     # TODO - remove in production
-    print('df.show():')
-    print(df.show())
     print('df.schema:')
     df.printSchema()
+    print('df.show():')
+    print(df.show())
+
 
     return df
 
