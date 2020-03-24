@@ -264,9 +264,9 @@ def write_to_protobuf(df, path, print_intervals=1000):
             f.write(bytesAsString)
 
             if (i % print_intervals == 0):
-                print("written row {} - page_id={} in ".format(i, row[0], time.time()-t_start))
+                print("written row {} - page_id={} in {}s".format(i, row[0], time.time()-t_start))
 
-    print('FINISHED')
+    print('FINISHED in {}s'.format(time.time()-t_start))
 
 
 def run_pyspark_job(read_path, dir_path, output_path, num_pages=1, chunks=100000, print_intervals=100,
