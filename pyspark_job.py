@@ -264,7 +264,7 @@ def write_to_protobuf(df, path, print_intervals=1000):
             f.write(bytesAsString)
 
             if (i % print_intervals == 0):
-                print("written row {} - page_id={} in ".format(i, page_id, time.time()-t_start))
+                print("written row {} - page_id={} in ".format(i, row[0], time.time()-t_start))
 
     print('FINISHED')
 
