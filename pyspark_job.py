@@ -239,7 +239,7 @@ def pyspark_processing(dir_path):
 
     return df
 
-def read_from_protobuf()
+def read_from_protobuf():
     with open(path, "rb") as f:
         print("read values")
         simple_message_read = page_pb2.PageMessage().FromString(f.read())
@@ -267,8 +267,8 @@ def write_to_protobuf(df, path, print_intervals=1000):
     print('FINISHED')
 
 
-def run_pyspark_job(read_path, dir_path, num_pages=1, chunks=100000, print_intervals=100, write_output=False,
-                    output_path=output_path):
+def run_pyspark_job(read_path, dir_path, output_path, num_pages=1, chunks=100000, print_intervals=100,
+                    write_output=False):
     # extract page data from
     write_pages_data_to_dir(read_path=read_path,
                             dir_path=dir_path,
