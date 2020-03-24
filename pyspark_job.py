@@ -27,7 +27,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
     """ Reads TREC CAR cbor file and returns list of Pages as bytearrays """
 
     # create new dir to store data chunks
-    if os.path.exist(dir_path == False) and write_output:
+    if os.path.isdir(dir_path == False) and write_output:
         os.mkdir(dir_path)
 
     def write_to_parquet(data, parquet_path):
