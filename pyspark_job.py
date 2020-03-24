@@ -5,6 +5,7 @@ from pyspark.sql.functions import udf
 
 from utils.trec_car_tools import iter_pages, Para, Paragraph, ParaBody, ParaText, ParaLink, Section, Image, List
 
+import protocol_buffers.page_pb2 as page_pb2
 import pandas as pd
 import pickle
 import spacy
@@ -12,6 +13,7 @@ import time
 import json
 import os
 import json
+
 
 # define valid classes
 SKELETON_CLASSES = (Para, List, Section, Image)
