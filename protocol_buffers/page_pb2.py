@@ -18,7 +18,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   package='',
   syntax='proto3',
   serialized_options=None,
-  serialized_pb=b'\n\npage.proto\"\x9f\x01\n\x0bPageMessage\x12\x0b\n\x03idx\x18\x01 \x01(\x03\x12\r\n\x05\x63hunk\x18\x02 \x01(\x03\x12\x0f\n\x07page_id\x18\x03 \x01(\t\x12\x11\n\tpage_name\x18\x04 \x01(\t\x12\x16\n\x0epage_bytearray\x18\x05 \x01(\x0c\x12\x1a\n\x12synthetic_skeleton\x18\x06 \x01(\x0c\x12\x1c\n\x14synthetic_paragraphs\x18\x07 \x01(\x0c\x62\x06proto3'
+  serialized_pb=b'\n\npage.proto\"\x95\x01\n\x0bPageMessage\x12\x0b\n\x03idx\x18\x01 \x01(\x03\x12\r\n\x05\x63hunk\x18\x02 \x01(\x03\x12\x0f\n\x07page_id\x18\x03 \x01(\t\x12\x11\n\tpage_name\x18\x04 \x01(\t\x12\x0c\n\x04page\x18\x05 \x01(\x0c\x12\x1a\n\x12synthetic_skeleton\x18\x06 \x01(\x0c\x12\x1c\n\x14synthetic_paragraphs\x18\x07 \x01(\x0c\x62\x06proto3'
 )
 
 
@@ -60,7 +60,7 @@ _PAGEMESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR),
     _descriptor.FieldDescriptor(
-      name='page_bytearray', full_name='PageMessage.page_bytearray', index=4,
+      name='page', full_name='PageMessage.page', index=4,
       number=5, type=12, cpp_type=9, label=1,
       has_default_value=False, default_value=b"",
       message_type=None, enum_type=None, containing_type=None,
@@ -93,7 +93,7 @@ _PAGEMESSAGE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=15,
-  serialized_end=174,
+  serialized_end=164,
 )
 
 DESCRIPTOR.message_types_by_name['PageMessage'] = _PAGEMESSAGE
