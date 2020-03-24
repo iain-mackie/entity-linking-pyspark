@@ -34,8 +34,9 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
     def write_to_parquet(data, parquet_path):
         """ write data chunks to parquet """
-        pd.DataFrame(data, columns=['idx', 'page_id', 'page_name', 'page_bytearray']).to_parquet(parquet_path)
+        pd.DataFrame(data, columns=['idx', 'chunk', 'page_id', 'page_name', 'page_bytearray']).to_parquet(parquet_path)
 
+    chunk = 1
     pages_data = []
     with open(read_path, 'rb') as f:
         t_start = time.time()
@@ -46,7 +47,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
                 break
 
             # add bytearray of trec_car_tool.Page object
-            pages_data.append([i, page.page_id, page.page_name, bytearray(pickle.dumps(page))])
+            pages_data.append([i, chunk, page.page_id, page.page_name, bytearray(pickle.dumps(page))])
 
             # write data chunk to file
             if ((i+1) % chunks == 0) and (i != 0 or num_pages == 1):
@@ -57,6 +58,7 @@ def write_pages_data_to_dir(read_path, dir_path, num_pages=1, chunks=100000, pri
 
                     # begin new list
                     pages_data = []
+                    chunk += 1
 
             # prints update at 'print_pages' intervals
             if (i % print_intervals == 0):
