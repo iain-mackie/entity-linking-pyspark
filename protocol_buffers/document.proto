@@ -1,0 +1,82 @@
+
+syntax = "proto3";
+
+message DocumentMessage {
+    // unique id of document
+    string doc_id = 1;
+    // title of document
+    string doc_name = 2;
+    // page_id of entity inlinks to page
+    repeated EntityLinkTotalsMessage entity_link_totals = 3;
+    // TODO - need paragraphs for paragraph retrieval?
+    // list of DocumentObjectMessage that contain contents of document
+    repeated DocumentContentMessage document_contents = 4;
+    /* TODO - other metadata? Seems pretty Wikipedia specific? i.e. page_type, redirectName, disambiguationNames,
+    TODO ...disambiguationIds, categoryNames, categoryIds, inlinkIds, inlinkAnchors */
+
+    // TODO - do we want a simple string text field got whole document? Seems a bit space redundant...but could be useful...
+}
+
+message EntityLinkTotalsMessage {
+    // unique id of mapped entity in KB
+    string entity_id = 1;
+    // name of mapped entity in KB
+    string entity_name = 2;
+    // contains
+    message AnchorTextFrequencyMessage {
+        string anchor_text = 1;
+        int32 frequency = 2;
+    }
+    repeated AnchorTextFrequencyMessage anchor_text_frequency  = 3;
+}
+
+message DocumentContentMessage {
+    // unique id of DocumentContentMessage
+    string id = 1;
+    // section heading id DocumentContentMessage belongs
+    string section_heading_id = 2;
+    // section heading name DocumentContentMessage belongs
+    string section_heading_name = 3;
+    // list of parent section heading ids DocumentContentMessage belongs i.e. handling nested sections
+    // TODO - best way to handle nested sections?
+    repeated string parent_section_heading_ids = 4;
+    // list of parent section heading names DocumentContentMessage belongs i.e. handling nested sections
+    repeated string parent_section_heading_names = 5;
+    // TODO - unsure if there are required? May be hard to categories for other data sources?
+    // enum of DocumentContentMessage type
+    enum DocumentContentType {
+        UNKNOWN = 0;
+        PARAGRAPH = 1;
+        IMAGE = 2;
+        LIST = 3;
+        VIDEO = 4;
+        AUDIO = 5;
+    }
+    DocumentContentType objects_type = 6;
+    // text contained
+    string text = 7;
+    // entity links within text
+    repeated EntityLink entity_links = 8;
+    // TODO - will need to decide how to deal with links
+    // links to attached content i.e. video, audio, etc.
+    repeated string content_urls = 9;
+}
+
+message EntityLink {
+    // text span within DocumentContentMessage.text that maps to the entity
+    string anchor_text = 1;
+    // location of text_span --> index of start character & index of end character
+    message AnchorTextLocationMessage {
+        int32 start = 1;
+        int32 end = 2;
+    }
+    AnchorTextLocationMessage anchor_text_location = 2;
+    // unique id of mapped entity in KB
+    string entity_id = 3;
+    // name of mapped entity in KB
+    string entity_name = 4;
+}
+
+
+
+

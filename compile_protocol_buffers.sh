@@ -1,1 +1,1 @@
-protoc -I=protocol_buffers/ --python_out=protocol_buffers/ protocol_buffers/page.proto
+protoc -I=protocol_buffers/ --python_out=protocol_buffers/ protocol_buffers/document.proto
