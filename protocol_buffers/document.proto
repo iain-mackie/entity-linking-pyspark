@@ -14,7 +14,7 @@ message DocumentMessage {
     /* TODO - other metadata? Seems pretty Wikipedia specific? i.e. page_type, redirectName, disambiguationNames,
     TODO ...disambiguationIds, categoryNames, categoryIds, inlinkIds, inlinkAnchors */
 
-    // TODO - do we want a simple string text field got whole document? Seems a bit space redundant...but could be useful...
+    // TODO - do we want a simple text field for whole document? Seems a bit space redundant...but could be useful...
 }
 
 message EntityLinkTotalsMessage {
